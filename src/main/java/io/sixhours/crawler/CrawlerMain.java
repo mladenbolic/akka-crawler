@@ -7,6 +7,16 @@ import java.io.IOException;
 
 public class CrawlerMain {
 
+//  public static void startCrawling(){
+//    ActorSystem system = ActorSystem.create("crawler-system");
+////    ActorRef master = system.actorOf(
+////        Props.create(ParallelMaster.class, new IndexerImpl(writer), new HtmlParserPageRetriever(path)));
+////    master.tell(path, actorSystem.guardian());
+////    actorSystem.awaitTermination();
+//    ActorRef crawlSupervisor = system.actorOf(CrawlSupervisor.props(), CrawlSupervisor.NAME);
+//    crawlSupervisor.tell(new StartCrawling("http://www.burgerking.no/"), ActorRef.noSender());
+//  }
+
   public static void main(String[] args) throws IOException {
     ActorSystem system = ActorSystem.create("crawler-system");
 
