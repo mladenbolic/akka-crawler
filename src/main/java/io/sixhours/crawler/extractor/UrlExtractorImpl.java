@@ -15,12 +15,14 @@ import org.apache.commons.io.LineIterator;
 import org.jsoup.Jsoup;
 
 /**
- * @author
+ * Class for extracting links from downloaded file.
+ *
+ * @author Mladen Bolic
  */
 public class UrlExtractorImpl implements UrlExtractor {
 
   @Override
-  public UrlExtractResult extractUrls(String baseUrl, String filePath) {
+  public UrlExtractResult extractUrls(String baseUri, String filePath) {
     File file = new File(filePath);
     LineIterator it = null;
     Set<String> urls = new HashSet<>();
@@ -31,23 +33,23 @@ public class UrlExtractorImpl implements UrlExtractor {
         String line = it.nextLine();
 
         urls.addAll(
-            getLinks(line, baseUrl, "a[href]", "href")
+            getLinks(line, baseUri, "a[href]", "href")
                 .filter(link -> !link.contains("mailto"))
                 .collect(Collectors.toList())
         );
 
         urls.addAll(
-            getLinks(line, baseUrl, "script[src]", "src")
+            getLinks(line, baseUri, "script[src]", "src")
                 .collect(Collectors.toList())
         );
 
         urls.addAll(
-            getLinks(line, baseUrl, "img[src]", "src")
+            getLinks(line, baseUri, "img[src]", "src")
                 .collect(Collectors.toList())
         );
 
         urls.addAll(
-            getLinks(line, baseUrl, "link[href]", "href")
+            getLinks(line, baseUri, "link[href]", "href")
                 .collect(Collectors.toList())
         );
       }

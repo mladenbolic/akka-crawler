@@ -9,8 +9,12 @@ import akka.event.LoggingAdapter;
 import io.sixhours.crawler.downloader.FileDownloadActor;
 import io.sixhours.crawler.downloader.FileDownloadActor.DownloadFile;
 import io.sixhours.crawler.downloader.FileDownloadActor.FileDownloadError;
+import io.sixhours.crawler.downloader.FileDownloadResult;
 import io.sixhours.crawler.downloader.FileDownloaderImpl;
+import io.sixhours.crawler.extractor.UrlExtractActor;
+import io.sixhours.crawler.extractor.UrlExtractActor.ExtractUrls;
 import io.sixhours.crawler.extractor.UrlExtractActor.UrlsExtracted;
+import io.sixhours.crawler.extractor.UrlExtractorImpl;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -24,7 +28,8 @@ public class CrawlSupervisor extends AbstractActor {
 
   private final CrawlStatus visitedPageStore = new CrawlStatus();
 
-  private Map<String, ActorRef> downloadActors = new HashMap<>();
+  private Map<String, ActorRef> urlToDownloadActor = new HashMap<>();
+  private Map<ActorRef, String> downloadActorToUrl = new HashMap<>();
   private Set<String> processedUrls = new HashSet<>();
   private Set<String> failedUrls = new HashSet<>();
 
@@ -41,17 +46,7 @@ public class CrawlSupervisor extends AbstractActor {
   }
 
   @Value
-  public static class StartCrawling1 {
-
-    private final String url;
-  }
-
-  @Value
   public static class CrawlFinished {
-
-    private final String url;
-    private final Set<String> extractedUrls;
-    private final Set<String> failedUrls;
   }
 
   @Override
@@ -66,24 +61,26 @@ public class CrawlSupervisor extends AbstractActor {
 
   // TODO: do we really need this? We need it if we are going to "supervise" write which actor didn't finish it's job
   private void onTerminated(Terminated t) {
-//    ActorRef actor = t.getActor();
-//    String groupId = downloadActors.get(actor);
-//    log.info("Device group actor for {} has been terminated", groupId);
-//    downloadActors.remove(groupActor);
-//    downloadActors.remove(groupId);
-    log.info("Actor terminated: {}", t.getActor());
+    ActorRef actor = t.getActor();
+    String url = downloadActorToUrl.get(actor);
+//    log.info("Url could not be processed: {}", url);
+//    urlToDownloadActor.remove(groupActor);
+//    urlToDownloadActor.remove(groupId);
+//    log.error("Actor terminated: {}", t.getActor());
   }
 
   private void onCrawlFinished(CrawlFinished message) {
-    // maybe to aggregate total files downloaded, skipped
-    // TOTAL: downloads: 1, errors: 0
-    // like the aggregation of unit test results
+    log.info("============================================================");
+    log.info(visitedPageStore.toString());
+    log.info("============================================================\n");
+    visitedPageStore.getFailedPages()
+        .forEach(log::info);
+
+    getContext().system().terminate();
   }
 
   private void onFileDownloadError(FileDownloadError message) {
-    String fileUrl = message.getPath();
-
-    failedUrls.add(fileUrl);
+    visitedPageStore.addFailed(message.getUrl());
   }
 
   @Override
@@ -97,38 +94,41 @@ public class CrawlSupervisor extends AbstractActor {
           ActorRef fileDownloaderActor = getContext()
               .actorOf(FileDownloadActor.props(url, new FileDownloaderImpl()),
                   FileDownloadActor.name(String.valueOf(visitedPageStore.size())));
-          getContext().watch(fileDownloaderActor);
-          fileDownloaderActor.tell(new DownloadFile(url), getSelf());
 
-//          if (!processedUrls.contains(url)) {
-//            processedUrls.add(url);
-//
-//            // for each new different url request we create new DownloadFile actor
-//            ActorRef fileDownloaderActor = getContext().actorOf(FileDownloadActor.props(url),
-//                FileDownloadActor.name(String.valueOf(processedUrls.size())));
-//            getContext().watch(fileDownloaderActor);
-//
-//            fileDownloaderActor.tell(new DownloadFile(url), getSelf());
-//  // TODO: think there is no point to keep the reference of the DownloadFile actor
-//          }
+          getContext().watch(fileDownloaderActor);
+          fileDownloaderActor.tell(new DownloadFile(visitedPageStore.getNext()), getSelf());
+
+          urlToDownloadActor.putIfAbsent(url, fileDownloaderActor);
+          downloadActorToUrl.putIfAbsent(fileDownloaderActor, url);
+        })
+        .match(FileDownloadResult.class, message -> {
+          ActorRef urlExtractor = getContext()
+              .actorOf(UrlExtractActor.props(new UrlExtractorImpl()),
+                  UrlExtractActor.NAME + String.valueOf(UUID.randomUUID()));
+          urlExtractor.tell(
+              new ExtractUrls(message.getUrl(), message.getPath(), "http://www.burgerking.no/"),
+              getSelf());
         })
         .match(UrlsExtracted.class, message -> {
-          // getIndexer().tell(content, getSelf());
           visitedPageStore.addAll(message.getUrls());
+          visitedPageStore.processed(message.getUrl());
 
           log.info(visitedPageStore.toString());
 
           if (visitedPageStore.isFinished()) {
-            // getIndexer().tell(IndexingActor.COMMIT_MESSAGE, getSelf());
-            log.info("Shutting down, finished");
-            getContext().system().terminate();
+            log.info("Finished crawling");
+            getSelf().tell(new CrawlFinished(), ActorRef.noSender());
           } else {
             for (String url : visitedPageStore.getNextBatch()) {
               ActorRef fileDownloaderActor = getContext()
                   .actorOf(FileDownloadActor.props(url, new FileDownloaderImpl()),
                       FileDownloadActor.name(String.valueOf(UUID.randomUUID())));
+
               getContext().watch(fileDownloaderActor);
               fileDownloaderActor.tell(new DownloadFile(url), getSelf());
+
+              urlToDownloadActor.putIfAbsent(url, fileDownloaderActor);
+              downloadActorToUrl.putIfAbsent(fileDownloaderActor, url);
             }
           }
         })

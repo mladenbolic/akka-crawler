@@ -3,15 +3,19 @@ package io.sixhours.crawler;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.Value;
 
 /**
  * @author
  */
+@Value
 public class CrawlStatus {
 
   private Set<String> pagesToVisit = new HashSet<>();
   private Set<String> allPages = new HashSet<>();
   private Set<String> inProgress = new HashSet<>();
+  private Set<String> failedPages = new HashSet<>();
+  private Set<String> processedPages = new HashSet<>();
 
   public void add(String page) {
     if (!allPages.contains(page)) {
@@ -26,8 +30,14 @@ public class CrawlStatus {
     }
   }
 
-  public void finished(String page) {
+  public void addFailed(String page) {
     inProgress.remove(page);
+    failedPages.add(page);
+  }
+
+  public void processed(String page) {
+    inProgress.remove(page);
+    processedPages.add(page);
   }
 
   public String getNext() {
@@ -49,8 +59,16 @@ public class CrawlStatus {
     return pages;
   }
 
-  public int size(){
+  public int size() {
     return allPages.size();
+  }
+
+  public int processedSize() {
+    return processedPages.size();
+  }
+
+  public Set<String> getProgressed() {
+    return this.inProgress;
   }
 
   public boolean isFinished() {
@@ -59,6 +77,8 @@ public class CrawlStatus {
 
   @Override
   public String toString() {
-    return String.format("inProgress: %1$3s, allPages: %2$3s", inProgress.size(), allPages.size());
+    return String
+        .format("Total: %1$3s, Processed: %2$3s, In Progress: %3$3s",
+            allPages.size(), processedPages.size(), inProgress.size());
   }
 }

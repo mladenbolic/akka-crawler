@@ -7,5 +7,6 @@ import lombok.Value;
  */
 @Value
 public class FileDownloadResult {
+  private final String url;
   private final String path;
 }
