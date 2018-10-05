@@ -52,24 +52,10 @@ public class FileDownloadActor extends AbstractActor {
     String url = message.url;
 
     try {
-      // return download file result => we need to process downloaded file (extract urls)
       FileDownloadResult result = fileDownloader.downloadFile(baseUrl, url);
-//      log.info("### Sending FileDownloadResult");
       getSender().tell(result, Actor.noSender());
-
-//       tell to sender that file is downloaded (we can use this to update the current status and/or for letting parent to handle the creation of url extractor
-//      getSender().tell(new FileDownloaded(url), Actor.noSender());
       getContext().stop(getSelf());
-
-//      ActorRef urlExtractor = getContext()
-//          .actorOf(UrlExtractActor.props(new UrlExtractorImpl()), UrlExtractActor.NAME);
-//      urlExtractor.forward(new ExtractUrls(result.getPath(), this.baseUrl), getContext());
-
-      // we should kill the actor only when it recieved data from url extractor
-//      getContext().stop(getSelf());
-
     } catch (FileDownloadException e) {
-      // e.printStackTrace();
       getSender().tell(new FileDownloadError(url), Actor.noSender());
     }
   }
@@ -77,16 +63,6 @@ public class FileDownloadActor extends AbstractActor {
   private void onFileDownloaded(FileDownloaded message) {
     log.debug("File downloaded {}", message.path);
   }
-//
-//  @Override
-//  public void preStart() {
-//    log.info("FileDownloadActor started");
-//  }
-//
-//  @Override
-//  public void postStop() {
-//    log.info("FileDownloadActor stopped");
-//  }
 
   @Override
   public void preRestart(Throwable reason, Optional<Object> message) throws Exception {
