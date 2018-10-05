@@ -5,6 +5,8 @@ package io.sixhours.crawler.downloader;
  */
 public class FileDownloadException extends Exception {
 
+  public static final long serialVersionUID = -3387514328743229948L;
+
   public FileDownloadException(String message, Throwable cause) {
     super(message, cause);
   }

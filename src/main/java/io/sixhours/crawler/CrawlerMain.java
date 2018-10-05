@@ -4,6 +4,7 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import io.sixhours.crawler.CrawlSupervisor.StartCrawling;
 
+@SuppressWarnings("PMD.UseUtilityClass")
 public class CrawlerMain {
 
   public static void main(String[] args) {
@@ -12,6 +13,6 @@ public class CrawlerMain {
     ActorRef crawlSupervisor = system
         .actorOf(CrawlSupervisor.props("http://www.burgerking.no/"), CrawlSupervisor.NAME);
 
-    crawlSupervisor.tell(new StartCrawling(), ActorRef.noSender());
+    crawlSupervisor.tell(new StartCrawling("http://www.burgerking.no/"), ActorRef.noSender());
   }
 }

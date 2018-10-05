@@ -24,6 +24,7 @@ public class FileDownloaderImpl implements FileDownloader {
   private static final String INDEX_NAME = "index";
   private static final String SLASH = "/";
   private static final String HTML_EXTENSION = ".html";
+  public static final String EMPTY_STRING = "";
 
   @Override
   public FileDownloadResult downloadFile(String baseUrl, String url)
@@ -65,11 +66,14 @@ public class FileDownloaderImpl implements FileDownloader {
     }
   }
 
-  private void createFileIfNotExists(String filePath) throws IOException {
-    Path f = Paths.get(DOWNLOAD_DIR + filePath);
-    if (!Files.exists(f) && !Files.isDirectory(f)) {
-      Files.createDirectories(f.getParent());
-      Files.createFile(f);
+  private void createFileIfNotExists(String fileUri) throws IOException {
+    Path filePath = Paths.get(DOWNLOAD_DIR + fileUri);
+    Path parentPath = filePath.getParent();
+    if (!Files.exists(filePath) && !Files.isDirectory(filePath)) {
+      if (parentPath != null) {
+        Files.createDirectories(parentPath);
+      }
+      Files.createFile(filePath);
     }
   }
 
@@ -78,7 +82,7 @@ public class FileDownloaderImpl implements FileDownloader {
     filePath = (SLASH.equals(filePath)) ? INDEX_NAME : filePath;
 
     String fileExtension = FilenameUtils.getExtension(filePath);
-    if (Objects.isNull(fileExtension) || "".equals(fileExtension)){
+    if (Objects.isNull(fileExtension) || EMPTY_STRING.equals(fileExtension)) {
       filePath = filePath + HTML_EXTENSION;
     }
 

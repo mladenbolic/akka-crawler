@@ -8,5 +8,6 @@ import lombok.Value;
  */
 @Value
 public class UrlExtractResult {
+
   private final Set<String> urls;
 }

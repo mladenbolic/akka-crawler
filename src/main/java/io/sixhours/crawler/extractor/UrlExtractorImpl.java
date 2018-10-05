@@ -19,6 +19,7 @@ import org.jsoup.Jsoup;
  *
  * @author Mladen Bolic
  */
+@SuppressWarnings("PMD.UseObjectForClearerAPI")
 public class UrlExtractorImpl implements UrlExtractor {
 
   @Override

@@ -35,7 +35,7 @@ public class CrawlSupervisor extends AbstractActor {
 
   @Value
   public static class StartCrawling {
-
+    private final String url;
   }
 
   @Value
@@ -53,6 +53,7 @@ public class CrawlSupervisor extends AbstractActor {
     log.info("Crawler stopped");
   }
 
+  @SuppressWarnings("PMD.UnusedFormalParameter")
   private void onCrawlFinished(CrawlFinished message) {
     log.info("============================================================");
     log.info(crawlStatus.toString());
@@ -63,11 +64,13 @@ public class CrawlSupervisor extends AbstractActor {
     getContext().system().terminate();
   }
 
+  @SuppressWarnings("PMD.UnusedFormalParameter")
   private void onStartCrawling(StartCrawling message) {
-    crawlStatus.add(this.baseUri);
+    String url = message.url;
+    crawlStatus.add(url);
 
     ActorRef fileDownloaderActor = getContext()
-        .actorOf(FileDownloadActor.props(this.baseUri, new FileDownloaderImpl()),
+        .actorOf(FileDownloadActor.props(url, new FileDownloaderImpl()),
             FileDownloadActor.name(String.valueOf(UUID.randomUUID())));
 
     fileDownloaderActor.tell(new DownloadFile(crawlStatus.getNext()), getSelf());
@@ -76,7 +79,7 @@ public class CrawlSupervisor extends AbstractActor {
   private void onFileDownloadResult(FileDownloadResult message) {
     ActorRef urlExtractor = getContext()
         .actorOf(UrlExtractActor.props(new UrlExtractorImpl()),
-            UrlExtractActor.NAME + String.valueOf(UUID.randomUUID()));
+            UrlExtractActor.NAME + UUID.randomUUID());
 
     urlExtractor.tell(
         new ExtractUrls(message.getUrl(), message.getPath(), this.baseUri),
@@ -93,16 +96,10 @@ public class CrawlSupervisor extends AbstractActor {
 
     log.info(crawlStatus.toString());
     if (crawlStatus.isFinished()) {
-      log.info("Finished crawling");
       getSelf().tell(new CrawlFinished(), ActorRef.noSender());
     } else {
-      for (String url : crawlStatus.getNextBatch()) {
-        ActorRef fileDownloaderActor = getContext()
-            .actorOf(FileDownloadActor.props(url, new FileDownloaderImpl()),
-                FileDownloadActor.name(String.valueOf(UUID.randomUUID())));
-
-        fileDownloaderActor.tell(new DownloadFile(url), getSelf());
-      }
+      crawlStatus.getNextBatch()
+          .forEach(url -> getSelf().tell(new StartCrawling(url), ActorRef.noSender()));
     }
   }
 
