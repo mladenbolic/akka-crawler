@@ -4,7 +4,6 @@ import akka.actor.AbstractActor;
 import akka.actor.Props;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import io.sixhours.crawler.CrawlSupervisor.StartCrawling;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
@@ -40,16 +39,6 @@ public class UrlExtractActor extends AbstractActor {
     private final String path;
     private final Set<String> urls;
   }
-//
-//  @Override
-//  public void preStart() {
-//    log.info("UrlExtractActor started");
-//  }
-//
-//  @Override
-//  public void postStop() {
-//    log.info("UrlExtractActor stopped");
-//  }
 
   private void onExtractUrls(ExtractUrls message) {
     String url = message.url;
@@ -57,9 +46,6 @@ public class UrlExtractActor extends AbstractActor {
     String baseUri = message.baseUri;
 
     UrlExtractResult result = this.urlExtractor.extractUrls(baseUri, path);
-    // result.getUrls().forEach(u -> getSender().tell(new StartCrawling(u), getSelf()));
-    // or we can return as a result the list of extracted urls, they will be put inside of temp store
-    // and then we can call this url, and start processing remaining urls
     getSender().tell(new UrlsExtracted(url, path, result.getUrls()), getSelf());
   }
 

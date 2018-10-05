@@ -3,7 +3,6 @@ package io.sixhours.crawler;
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
-import akka.actor.Terminated;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import io.sixhours.crawler.downloader.FileDownloadActor;
@@ -15,38 +14,33 @@ import io.sixhours.crawler.extractor.UrlExtractActor;
 import io.sixhours.crawler.extractor.UrlExtractActor.ExtractUrls;
 import io.sixhours.crawler.extractor.UrlExtractActor.UrlsExtracted;
 import io.sixhours.crawler.extractor.UrlExtractorImpl;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
+@RequiredArgsConstructor
 public class CrawlSupervisor extends AbstractActor {
 
   private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
 
-  private final CrawlStatus visitedPageStore = new CrawlStatus();
+  private final CrawlStatus crawlStatus = new CrawlStatus();
 
-  private Map<String, ActorRef> urlToDownloadActor = new HashMap<>();
-  private Map<ActorRef, String> downloadActorToUrl = new HashMap<>();
-  private Set<String> processedUrls = new HashSet<>();
-  private Set<String> failedUrls = new HashSet<>();
+  private final String baseUri;
 
   public static final String NAME = "crawler-supervisor";
 
-  public static Props props() {
-    return Props.create(CrawlSupervisor.class);
+  public static Props props(String baseUri) {
+    return Props.create(CrawlSupervisor.class, baseUri);
   }
 
   @Value
   public static class StartCrawling {
 
-    private final String url;
   }
 
   @Value
   public static class CrawlFinished {
+
   }
 
   @Override
@@ -59,82 +53,67 @@ public class CrawlSupervisor extends AbstractActor {
     log.info("Crawler stopped");
   }
 
-  // TODO: do we really need this? We need it if we are going to "supervise" write which actor didn't finish it's job
-  private void onTerminated(Terminated t) {
-    ActorRef actor = t.getActor();
-    String url = downloadActorToUrl.get(actor);
-//    log.info("Url could not be processed: {}", url);
-//    urlToDownloadActor.remove(groupActor);
-//    urlToDownloadActor.remove(groupId);
-//    log.error("Actor terminated: {}", t.getActor());
-  }
-
   private void onCrawlFinished(CrawlFinished message) {
     log.info("============================================================");
-    log.info(visitedPageStore.toString());
+    log.info(crawlStatus.toString());
     log.info("============================================================\n");
-    visitedPageStore.getFailedPages()
+    crawlStatus.getFailed()
         .forEach(log::info);
 
     getContext().system().terminate();
   }
 
+  private void onStartCrawling(StartCrawling message) {
+    crawlStatus.add(this.baseUri);
+
+    ActorRef fileDownloaderActor = getContext()
+        .actorOf(FileDownloadActor.props(this.baseUri, new FileDownloaderImpl()),
+            FileDownloadActor.name(String.valueOf(UUID.randomUUID())));
+
+    fileDownloaderActor.tell(new DownloadFile(crawlStatus.getNext()), getSelf());
+  }
+
+  private void onFileDownloadResult(FileDownloadResult message) {
+    ActorRef urlExtractor = getContext()
+        .actorOf(UrlExtractActor.props(new UrlExtractorImpl()),
+            UrlExtractActor.NAME + String.valueOf(UUID.randomUUID()));
+
+    urlExtractor.tell(
+        new ExtractUrls(message.getUrl(), message.getPath(), this.baseUri),
+        getSelf());
+  }
+
   private void onFileDownloadError(FileDownloadError message) {
-    visitedPageStore.addFailed(message.getUrl());
+    crawlStatus.addFailed(message.getUrl());
+  }
+
+  private void onUrlsExtracted(UrlsExtracted message) {
+    crawlStatus.addAll(message.getUrls());
+    crawlStatus.addProcessed(message.getUrl());
+
+    log.info(crawlStatus.toString());
+    if (crawlStatus.isFinished()) {
+      log.info("Finished crawling");
+      getSelf().tell(new CrawlFinished(), ActorRef.noSender());
+    } else {
+      for (String url : crawlStatus.getNextBatch()) {
+        ActorRef fileDownloaderActor = getContext()
+            .actorOf(FileDownloadActor.props(url, new FileDownloaderImpl()),
+                FileDownloadActor.name(String.valueOf(UUID.randomUUID())));
+
+        fileDownloaderActor.tell(new DownloadFile(url), getSelf());
+      }
+    }
   }
 
   @Override
   public Receive createReceive() {
     return receiveBuilder()
-        .match(StartCrawling.class, crawlRequest -> {
-          String url = crawlRequest.url;
-
-          visitedPageStore.add(url);
-
-          ActorRef fileDownloaderActor = getContext()
-              .actorOf(FileDownloadActor.props(url, new FileDownloaderImpl()),
-                  FileDownloadActor.name(String.valueOf(visitedPageStore.size())));
-
-          getContext().watch(fileDownloaderActor);
-          fileDownloaderActor.tell(new DownloadFile(visitedPageStore.getNext()), getSelf());
-
-          urlToDownloadActor.putIfAbsent(url, fileDownloaderActor);
-          downloadActorToUrl.putIfAbsent(fileDownloaderActor, url);
-        })
-        .match(FileDownloadResult.class, message -> {
-          ActorRef urlExtractor = getContext()
-              .actorOf(UrlExtractActor.props(new UrlExtractorImpl()),
-                  UrlExtractActor.NAME + String.valueOf(UUID.randomUUID()));
-          urlExtractor.tell(
-              new ExtractUrls(message.getUrl(), message.getPath(), "http://www.burgerking.no/"),
-              getSelf());
-        })
-        .match(UrlsExtracted.class, message -> {
-          visitedPageStore.addAll(message.getUrls());
-          visitedPageStore.processed(message.getUrl());
-
-          log.info(visitedPageStore.toString());
-
-          if (visitedPageStore.isFinished()) {
-            log.info("Finished crawling");
-            getSelf().tell(new CrawlFinished(), ActorRef.noSender());
-          } else {
-            for (String url : visitedPageStore.getNextBatch()) {
-              ActorRef fileDownloaderActor = getContext()
-                  .actorOf(FileDownloadActor.props(url, new FileDownloaderImpl()),
-                      FileDownloadActor.name(String.valueOf(UUID.randomUUID())));
-
-              getContext().watch(fileDownloaderActor);
-              fileDownloaderActor.tell(new DownloadFile(url), getSelf());
-
-              urlToDownloadActor.putIfAbsent(url, fileDownloaderActor);
-              downloadActorToUrl.putIfAbsent(fileDownloaderActor, url);
-            }
-          }
-        })
+        .match(StartCrawling.class, this::onStartCrawling)
         .match(CrawlFinished.class, this::onCrawlFinished)
+        .match(FileDownloadResult.class, this::onFileDownloadResult)
         .match(FileDownloadError.class, this::onFileDownloadError)
-        .match(Terminated.class, this::onTerminated)
+        .match(UrlsExtracted.class, this::onUrlsExtracted)
         .build();
   }
 }
