@@ -12,15 +12,15 @@ import lombok.Value;
 public class CrawlStatus {
 
   private Set<String> pagesToVisit = new HashSet<>();
-  private Set<String> allPages = new HashSet<>();
-  private Set<String> inProgress = new HashSet<>();
-  private Set<String> failedPages = new HashSet<>();
-  private Set<String> processedPages = new HashSet<>();
+  private Set<String> total = new HashSet<>();
+  private Set<String> processing = new HashSet<>();
+  private Set<String> processed = new HashSet<>();
+  private Set<String> failed = new HashSet<>();
 
   public void add(String page) {
-    if (!allPages.contains(page)) {
+    if (!total.contains(page)) {
       pagesToVisit.add(page);
-      allPages.add(page);
+      total.add(page);
     }
   }
 
@@ -31,13 +31,13 @@ public class CrawlStatus {
   }
 
   public void addFailed(String page) {
-    inProgress.remove(page);
-    failedPages.add(page);
+    processing.remove(page);
+    failed.add(page);
   }
 
-  public void processed(String page) {
-    inProgress.remove(page);
-    processedPages.add(page);
+  public void addProcessed(String page) {
+    processing.remove(page);
+    processed.add(page);
   }
 
   public String getNext() {
@@ -46,7 +46,7 @@ public class CrawlStatus {
     } else {
       String next = pagesToVisit.iterator().next();
       pagesToVisit.remove(next);
-      inProgress.add(next);
+      processing.add(next);
       return next;
     }
   }
@@ -55,30 +55,18 @@ public class CrawlStatus {
     Set<String> pages = new HashSet<>();
     pages.addAll(pagesToVisit);
     pagesToVisit.clear();
-    inProgress.addAll(pages);
+    processing.addAll(pages);
     return pages;
   }
 
-  public int size() {
-    return allPages.size();
-  }
-
-  public int processedSize() {
-    return processedPages.size();
-  }
-
-  public Set<String> getProgressed() {
-    return this.inProgress;
-  }
-
   public boolean isFinished() {
-    return pagesToVisit.isEmpty() && inProgress.isEmpty();
+    return pagesToVisit.isEmpty() && processing.isEmpty();
   }
 
   @Override
   public String toString() {
     return String
         .format("Total: %1$3s, Processed: %2$3s, In Progress: %3$3s",
-            allPages.size(), processedPages.size(), inProgress.size());
+            total.size(), processed.size(), processing.size());
   }
 }
