@@ -18,6 +18,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
+@SuppressWarnings("PMD.UnusedFormalParameter")
 @RequiredArgsConstructor
 public class CrawlSupervisor extends AbstractActor {
 
@@ -35,7 +36,8 @@ public class CrawlSupervisor extends AbstractActor {
 
   @Value
   public static class StartCrawling {
-    private final String url;
+
+    private String url;
   }
 
   @Value
@@ -53,7 +55,6 @@ public class CrawlSupervisor extends AbstractActor {
     log.info("Crawler stopped");
   }
 
-  @SuppressWarnings("PMD.UnusedFormalParameter")
   private void onCrawlFinished(CrawlFinished message) {
     log.info("============================================================");
     log.info(crawlStatus.toString());
@@ -64,7 +65,6 @@ public class CrawlSupervisor extends AbstractActor {
     getContext().system().terminate();
   }
 
-  @SuppressWarnings("PMD.UnusedFormalParameter")
   private void onStartCrawling(StartCrawling message) {
     String url = message.url;
     crawlStatus.add(url);
@@ -98,7 +98,7 @@ public class CrawlSupervisor extends AbstractActor {
     if (crawlStatus.isFinished()) {
       getSelf().tell(new CrawlFinished(), ActorRef.noSender());
     } else {
-      crawlStatus.getNextBatch()
+      crawlStatus.getPagesToVisit()
           .forEach(url -> getSelf().tell(new StartCrawling(url), ActorRef.noSender()));
     }
   }
