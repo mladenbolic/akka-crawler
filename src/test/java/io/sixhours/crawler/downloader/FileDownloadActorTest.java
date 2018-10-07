@@ -39,7 +39,7 @@ public class FileDownloadActorTest {
   }
 
   @Test
-  public void givenUrl_whenFileDownload_thenDownloadResult() throws Exception {
+  public void givenUrl_whenFileDownload_thenReturnDownloadResult() throws Exception {
     TestKit probe = new TestKit(system);
     when(fileDownloader.downloadFile(any(String.class), any(String.class)))
         .thenReturn(new FileDownloadResult("http://some.url", "/some/path"));
@@ -57,7 +57,7 @@ public class FileDownloadActorTest {
   }
 
   @Test
-  public void givenUrl_whenFileDownloadException_thenErrorResult() throws Exception {
+  public void givenUrl_whenFileDownloadException_thenReturnErrorResult() throws Exception {
     TestKit probe = new TestKit(system);
     when(fileDownloader.downloadFile(any(String.class), any(String.class)))
         .thenThrow(new FileDownloadException("error"));
