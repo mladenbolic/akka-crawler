@@ -70,7 +70,7 @@ public class CrawlSupervisor extends AbstractActor {
     crawlStatus.add(url);
 
     ActorRef fileDownloaderActor = getContext()
-        .actorOf(FileDownloadActor.props(url, new FileDownloaderImpl()),
+        .actorOf(FileDownloadActor.props(new FileDownloaderImpl(System.getProperty("user.home")+"/Downloads/")),
             FileDownloadActor.name(String.valueOf(UUID.randomUUID())));
 
     fileDownloaderActor.tell(new DownloadFile(crawlStatus.getNext()), getSelf());

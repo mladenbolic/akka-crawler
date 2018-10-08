@@ -5,5 +5,5 @@ package io.sixhours.crawler.downloader;
  */
 public interface FileDownloader {
 
-  FileDownloadResult downloadFile(String baseUrl, String currentUrl) throws FileDownloadException;
+  FileDownloadResult downloadFile(String currentUrl) throws FileDownloadException;
 }

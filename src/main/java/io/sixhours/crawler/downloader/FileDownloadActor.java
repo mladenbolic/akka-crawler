@@ -19,11 +19,10 @@ public class FileDownloadActor extends AbstractActor {
 
   private static final String NAME_PREFIX = "download-file-%s";
 
-  private final String baseUrl;
   private final FileDownloader fileDownloader;
 
-  public static Props props(String url, FileDownloader fileDownloader) {
-    return Props.create(FileDownloadActor.class, url, fileDownloader);
+  public static Props props(FileDownloader fileDownloader) {
+    return Props.create(FileDownloadActor.class, fileDownloader);
   }
 
   public static String name(String suffix) {
@@ -52,7 +51,7 @@ public class FileDownloadActor extends AbstractActor {
     String url = message.url;
 
     try {
-      FileDownloadResult result = fileDownloader.downloadFile(baseUrl, url);
+      FileDownloadResult result = fileDownloader.downloadFile(url);
       getSender().tell(result, Actor.noSender());
       getContext().stop(getSelf());
     } catch (FileDownloadException e) {

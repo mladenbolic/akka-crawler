@@ -10,8 +10,6 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.testkit.javadsl.TestKit;
 import io.sixhours.crawler.extractor.UrlExtractActor;
-import io.sixhours.crawler.downloader.FileDownloadException;
-import io.sixhours.crawler.downloader.FileDownloadResult;
 import io.sixhours.crawler.extractor.UrlExtractActor.ExtractUrls;
 import io.sixhours.crawler.extractor.UrlExtractActor.UrlsExtracted;
 import io.sixhours.crawler.extractor.UrlExtractResult;
@@ -33,12 +31,12 @@ public class UrlExtractActorTest {
   private UrlExtractor urlExtractor;
 
   @BeforeClass
-  public static void setup() {
+  public static void setUpClass() {
     system = ActorSystem.create();
   }
 
   @AfterClass
-  public static void teardown() {
+  public static void tearDownClass() {
     TestKit.shutdownActorSystem(system);
     system = null;
   }

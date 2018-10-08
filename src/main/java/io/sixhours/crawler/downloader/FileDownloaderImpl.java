@@ -17,21 +17,27 @@ import org.apache.commons.io.FilenameUtils;
 /**
  * @author
  */
+@SuppressWarnings("PMD.AvoidFileStream")
 @Slf4j
 public class FileDownloaderImpl implements FileDownloader {
 
-  private static final String DOWNLOAD_DIR = "/Users/mladen/Downloads/xxx/";
   private static final String INDEX_NAME = "index";
   private static final String SLASH = "/";
   private static final String HTML_EXTENSION = ".html";
-  public static final String EMPTY_STRING = "";
+  private static final String EMPTY_STRING = "";
+
+  private final String downloadDir;
+
+  public FileDownloaderImpl(String downloadDir){
+    this.downloadDir = downloadDir;
+  }
 
   @Override
-  public FileDownloadResult downloadFile(String baseUrl, String url)
+  public FileDownloadResult downloadFile(String url)
       throws FileDownloadException {
     URL fileUrl;
     String filePath;
-    InputStream inputStream = null;
+    InputStream inputStream;
 
     try {
       fileUrl = new URL(url);
@@ -47,14 +53,14 @@ public class FileDownloaderImpl implements FileDownloader {
     try (
         ReadableByteChannel readableByteChannel = Channels.newChannel(inputStream);
         FileOutputStream fileOutputStream = new FileOutputStream(
-            DOWNLOAD_DIR + filePath);
+            downloadDir + filePath);
         FileChannel fileChannel = fileOutputStream.getChannel()
     ) {
 
       fileChannel
           .transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
 
-      return new FileDownloadResult(url, DOWNLOAD_DIR + filePath);
+      return new FileDownloadResult(url, downloadDir + filePath);
     } catch (IOException e) {
       throw new FileDownloadException(e.getMessage(), e);
     } finally {
@@ -67,7 +73,7 @@ public class FileDownloaderImpl implements FileDownloader {
   }
 
   private void createFileIfNotExists(String fileUri) throws IOException {
-    Path filePath = Paths.get(DOWNLOAD_DIR + fileUri);
+    Path filePath = Paths.get(downloadDir + fileUri);
     Path parentPath = filePath.getParent();
     if (!Files.exists(filePath) && !Files.isDirectory(filePath)) {
       if (parentPath != null) {
