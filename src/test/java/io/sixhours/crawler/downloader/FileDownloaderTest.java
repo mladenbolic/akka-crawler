@@ -42,7 +42,7 @@ public class FileDownloaderTest {
         .downloadFile(path);
 
     assertThat(result.getUrl()).isEqualTo(url.toString());
-    assertThat(result.getPath()).isNotBlank();
+    assertThat(result.getPath()).contains(EXISTING_FILE_URL);
   }
 
   @Test(expected = FileDownloadException.class)

@@ -70,7 +70,8 @@ public class CrawlSupervisor extends AbstractActor {
     crawlStatus.add(url);
 
     ActorRef fileDownloaderActor = getContext()
-        .actorOf(FileDownloadActor.props(new FileDownloaderImpl(System.getProperty("user.home")+"/Downloads/")),
+        .actorOf(FileDownloadActor.props(
+            new FileDownloaderImpl(System.getProperty("user.home") + "/Downloads/Akka-Crawler")),
             FileDownloadActor.name(String.valueOf(UUID.randomUUID())));
 
     fileDownloaderActor.tell(new DownloadFile(crawlStatus.getNext()), getSelf());
@@ -110,6 +111,7 @@ public class CrawlSupervisor extends AbstractActor {
         .match(CrawlFinished.class, this::onCrawlFinished)
         .match(FileDownloadResult.class, this::onFileDownloadResult)
         .match(FileDownloadError.class, this::onFileDownloadError)
+        // TODO: on url extract error we shoudl just keep processing the files
         .match(UrlsExtracted.class, this::onUrlsExtracted)
         .build();
   }

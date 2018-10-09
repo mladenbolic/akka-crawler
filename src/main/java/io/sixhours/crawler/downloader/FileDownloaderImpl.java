@@ -15,7 +15,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 
 /**
- * @author
+ * Class for downloading files.
+ *
+ * <p>Files are downloaded
+ *
+ * @author Mladen Bolic
  */
 @SuppressWarnings("PMD.AvoidFileStream")
 @Slf4j

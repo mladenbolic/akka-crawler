@@ -1,7 +1,9 @@
 package io.sixhours.crawler.downloader;
 
 /**
- * @author
+ * Class representing file download exception.
+ *
+ * @author Mladen Bolic
  */
 public class FileDownloadException extends Exception {
 

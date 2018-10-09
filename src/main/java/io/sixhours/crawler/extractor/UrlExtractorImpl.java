@@ -23,7 +23,7 @@ import org.jsoup.Jsoup;
 public class UrlExtractorImpl implements UrlExtractor {
 
   @Override
-  public UrlExtractResult extractUrls(String baseUri, String filePath) {
+  public UrlExtractResult extractUrls(String baseUri, String filePath) throws UrlExtractException {
     File file = new File(filePath);
     LineIterator it = null;
     Set<String> urls = new HashSet<>();
@@ -56,6 +56,8 @@ public class UrlExtractorImpl implements UrlExtractor {
       }
     } catch (IOException e) {
       e.printStackTrace();
+      // TODO: send event that urls could not be extracted
+      throw new UrlExtractException(e.getMessage(), e);
     } finally {
       // getSender().tell(new UrlsExtracted(requestId, urls), getSender());
       LineIterator.closeQuietly(it);
