@@ -2,7 +2,6 @@ package io.sixhours.crawler.downloader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,6 +11,8 @@ import akka.actor.ActorSystem;
 import akka.testkit.javadsl.TestKit;
 import io.sixhours.crawler.downloader.FileDownloadActor.DownloadFile;
 import io.sixhours.crawler.downloader.FileDownloadActor.FileDownloadError;
+import io.sixhours.crawler.downloader.FileDownloadActor.FileDownloadResult;
+import java.util.UUID;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -22,7 +23,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class FileDownloadActorTest {
 
-  private static final String TEST_URL = "http://test.url";
+  private static final String TEST_BASE_URL = "http://test.url/";
+  private static final String TEST_URL = "http://test.url/contact";
   private static final String TEST_PATH = "/test/path";
 
   static ActorSystem system;
@@ -42,12 +44,14 @@ public class FileDownloadActorTest {
   }
 
   @Test
-  public void givenUrl_whenFileDownload_thenReturnDownloadResult() throws Exception {
+  public void givenUrl_whenFileDownload_thenReturnDownloadResultForFile() throws Exception {
     TestKit probe = new TestKit(system);
     when(fileDownloader.downloadFile(any(String.class)))
         .thenReturn(new FileDownloadResult(TEST_URL, TEST_PATH));
 
-    ActorRef fileDownloaderActor = system.actorOf(FileDownloadActor.props(fileDownloader));
+    ActorRef fileDownloaderActor = system
+        .actorOf(FileDownloadActor.props(fileDownloader), FileDownloadActor.name(String.valueOf(
+            UUID.randomUUID())));
 
     fileDownloaderActor.tell(new DownloadFile(TEST_URL), probe.getRef());
 

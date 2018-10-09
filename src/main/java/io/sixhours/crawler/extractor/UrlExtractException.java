@@ -5,7 +5,7 @@ package io.sixhours.crawler.extractor;
  *
  * @author Mladen Bolic
  */
-public class UrlExtractException extends Exception {
+public class UrlExtractException extends RuntimeException {
 
   public static final long serialVersionUID = -3387514328743229948L;
 

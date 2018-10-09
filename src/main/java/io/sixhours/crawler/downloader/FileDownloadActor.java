@@ -5,12 +5,17 @@ import akka.actor.Actor;
 import akka.actor.Props;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
 /**
- * @author
+ * Actor for handling file downloads.
+ *
+ * <p>Actor should return {@code FileDownloadResult} upon successful file download.
+ *
+ * <p>Actor should return {@code FileDownloadError} if error occurs during file download.
+ *
+ * @author Mladen Bolic
  */
 @RequiredArgsConstructor
 public class FileDownloadActor extends AbstractActor {
@@ -36,9 +41,10 @@ public class FileDownloadActor extends AbstractActor {
   }
 
   @Value
-  public static final class FileDownloaded {
+  public static class FileDownloadResult {
 
-    final String path;
+    private final String url;
+    private final String path;
   }
 
   @Value
@@ -59,21 +65,10 @@ public class FileDownloadActor extends AbstractActor {
     }
   }
 
-  private void onFileDownloaded(FileDownloaded message) {
-    log.debug("File downloaded {}", message.path);
-  }
-
-  @Override
-  public void preRestart(Throwable reason, Optional<Object> message) throws Exception {
-    log.info("Restarting FileDownloadActor because of {}", reason.getClass());
-    super.preRestart(reason, message);
-  }
-
   @Override
   public Receive createReceive() {
     return receiveBuilder()
         .match(DownloadFile.class, this::onDownloadFile)
-        .match(FileDownloaded.class, this::onFileDownloaded)
         .build();
   }
 }

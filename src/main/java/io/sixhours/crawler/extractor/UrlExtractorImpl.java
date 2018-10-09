@@ -55,11 +55,8 @@ public class UrlExtractorImpl implements UrlExtractor {
         );
       }
     } catch (IOException e) {
-      e.printStackTrace();
-      // TODO: send event that urls could not be extracted
       throw new UrlExtractException(e.getMessage(), e);
     } finally {
-      // getSender().tell(new UrlsExtracted(requestId, urls), getSender());
       LineIterator.closeQuietly(it);
     }
     return new UrlExtractResult(urls);
@@ -72,13 +69,14 @@ public class UrlExtractorImpl implements UrlExtractor {
         .select(cssQuery).stream()
         .map(element -> element.absUrl(attributeKey))
         .filter(link -> Objects.nonNull(link) && link.length() > 0)
-        .filter(link -> {
-          try {
-            return new URL(baseUri).getHost().equals(new URL(link).getHost());
-          } catch (MalformedURLException e) {
-            e.printStackTrace();
-          }
-          return false;
-        });
+        .filter(link -> this.checkHost(baseUri, link));
+  }
+
+  private boolean checkHost(String baseUri, String link) {
+    try {
+      return new URL(baseUri).getHost().equals(new URL(link).getHost());
+    } catch (MalformedURLException e) {
+      throw new UrlExtractException(e.getMessage(), e);
+    }
   }
 }

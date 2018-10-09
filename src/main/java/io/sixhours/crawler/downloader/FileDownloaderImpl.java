@@ -1,5 +1,6 @@
 package io.sixhours.crawler.downloader;
 
+import io.sixhours.crawler.downloader.FileDownloadActor.FileDownloadResult;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;

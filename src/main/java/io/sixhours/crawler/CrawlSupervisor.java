@@ -8,7 +8,7 @@ import akka.event.LoggingAdapter;
 import io.sixhours.crawler.downloader.FileDownloadActor;
 import io.sixhours.crawler.downloader.FileDownloadActor.DownloadFile;
 import io.sixhours.crawler.downloader.FileDownloadActor.FileDownloadError;
-import io.sixhours.crawler.downloader.FileDownloadResult;
+import io.sixhours.crawler.downloader.FileDownloadActor.FileDownloadResult;
 import io.sixhours.crawler.downloader.FileDownloaderImpl;
 import io.sixhours.crawler.extractor.UrlExtractActor;
 import io.sixhours.crawler.extractor.UrlExtractActor.ExtractUrls;
