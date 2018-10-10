@@ -2,7 +2,7 @@ apply plugin: 'jacoco'
 
 buildscript {
     ext {
-        jacocoExcludeList = ['**/*/ExcludedActor.class']
+        jacocoExcludeList = ['**/*/CrawlerMain.class']
         jacocoIncludeList = ['io.sixhours.crawler.*']
         jacocoReportDir = "${buildDir}/reports/jacoco"
         jacocoDestFile = "${buildDir}/jacoco/jacocoTest.exec"
@@ -18,6 +18,7 @@ jacoco {
 test {
     jacoco {
         includes = jacocoIncludeList
+        excludes = jacocoExcludeList
         destinationFile = file(jacocoDestFile)
         classDumpDir = file(jacocoClassDumps)
     }
@@ -28,5 +29,11 @@ jacocoTestReport {
         xml.enabled false
         html.enabled true
         csv.enabled false
+    }
+
+    afterEvaluate {
+        classDirectories = files(classDirectories.files.collect {
+            fileTree(dir: it, excludes: jacocoExcludeList)
+        })
     }
 }
