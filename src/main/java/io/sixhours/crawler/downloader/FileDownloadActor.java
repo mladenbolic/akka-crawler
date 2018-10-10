@@ -22,7 +22,7 @@ public class FileDownloadActor extends AbstractActor {
 
   private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
 
-  private static final String NAME_PREFIX = "download-file-%s";
+  private static final String NAME_PREFIX = "file-download-%s";
 
   private final FileDownloader fileDownloader;
 
@@ -57,6 +57,7 @@ public class FileDownloadActor extends AbstractActor {
     String url = message.url;
 
     try {
+      log.info("FileDownloadActor, Parent: {}", getContext().getParent());
       FileDownloadResult result = fileDownloader.downloadFile(url);
       getSender().tell(result, Actor.noSender());
       getContext().stop(getSelf());

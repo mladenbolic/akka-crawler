@@ -2,19 +2,21 @@ package io.sixhours.crawler;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
+import akka.actor.ActorRefFactory;
+import akka.actor.OneForOneStrategy;
 import akka.actor.Props;
+import akka.actor.SupervisorStrategy;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import io.sixhours.crawler.downloader.FileDownloadActor;
+import akka.japi.pf.DeciderBuilder;
 import io.sixhours.crawler.downloader.FileDownloadActor.DownloadFile;
 import io.sixhours.crawler.downloader.FileDownloadActor.FileDownloadError;
 import io.sixhours.crawler.downloader.FileDownloadActor.FileDownloadResult;
-import io.sixhours.crawler.downloader.FileDownloaderImpl;
-import io.sixhours.crawler.extractor.UrlExtractActor;
+import io.sixhours.crawler.downloader.FileDownloadException;
 import io.sixhours.crawler.extractor.UrlExtractActor.ExtractUrls;
 import io.sixhours.crawler.extractor.UrlExtractActor.UrlsExtracted;
-import io.sixhours.crawler.extractor.UrlExtractorImpl;
-import java.util.UUID;
+import io.sixhours.crawler.extractor.UrlExtractException;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
@@ -24,14 +26,21 @@ public class CrawlSupervisor extends AbstractActor {
 
   private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
 
-  private final CrawlStatus crawlStatus = new CrawlStatus();
-
   private final String baseUri;
 
-  public static final String NAME = "crawler-supervisor";
+  private final CrawlStatus crawlStatus;
 
-  public static Props props(String baseUri) {
-    return Props.create(CrawlSupervisor.class, baseUri);
+  private final Function<ActorRefFactory, ActorRef> fileDownloadCreator;
+
+  private final Function<ActorRefFactory, ActorRef> urlExtractorCreator;
+
+  public static final String NAME = "crawl-supervisor";
+
+  public static Props props(String baseUri, CrawlStatus crawlStatus,
+      Function<ActorRefFactory, ActorRef> fileDownloadCreator,
+      Function<ActorRefFactory, ActorRef> urlExtractorCreator) {
+    return Props.create(CrawlSupervisor.class, baseUri, crawlStatus, fileDownloadCreator,
+        urlExtractorCreator);
   }
 
   @Value
@@ -43,6 +52,26 @@ public class CrawlSupervisor extends AbstractActor {
   @Value
   public static class CrawlFinished {
 
+  }
+
+  private SupervisorStrategy strategy = new OneForOneStrategy(false,
+      DeciderBuilder.
+          match(FileDownloadException.class, e -> {
+            log.warning("Evaluation of a top level expression failed, restarting.");
+            return SupervisorStrategy.stop();
+          }).
+          match(UrlExtractException.class, e -> {
+            log.error("Evaluation failed because of: {}", e.getMessage());
+            return SupervisorStrategy.stop();
+          }).
+          match(Throwable.class, e -> {
+            log.error("Unexpected failure: {}", e.getMessage());
+            return SupervisorStrategy.stop();
+          }).build());
+
+  @Override
+  public SupervisorStrategy supervisorStrategy() {
+    return strategy;
   }
 
   @Override
@@ -62,26 +91,19 @@ public class CrawlSupervisor extends AbstractActor {
     crawlStatus.getFailed()
         .forEach(log::info);
 
-    getContext().system().terminate();
+//     getContext().system().terminate();
   }
 
   private void onStartCrawling(StartCrawling message) {
     String url = message.url;
     crawlStatus.add(url);
 
-    ActorRef fileDownloaderActor = getContext()
-        .actorOf(FileDownloadActor.props(
-            new FileDownloaderImpl(System.getProperty("user.home") + "/Downloads/Akka-Crawler")),
-            FileDownloadActor.name(String.valueOf(UUID.randomUUID())));
-
+    ActorRef fileDownloaderActor = fileDownloadCreator.apply(getContext());
     fileDownloaderActor.tell(new DownloadFile(crawlStatus.getNext()), getSelf());
   }
 
   private void onFileDownloadResult(FileDownloadResult message) {
-    ActorRef urlExtractor = getContext()
-        .actorOf(UrlExtractActor.props(new UrlExtractorImpl()),
-            UrlExtractActor.NAME + UUID.randomUUID());
-
+    ActorRef urlExtractor = urlExtractorCreator.apply(getContext());
     urlExtractor.tell(
         new ExtractUrls(message.getUrl(), message.getPath(), this.baseUri),
         getSelf());
@@ -111,7 +133,6 @@ public class CrawlSupervisor extends AbstractActor {
         .match(CrawlFinished.class, this::onCrawlFinished)
         .match(FileDownloadResult.class, this::onFileDownloadResult)
         .match(FileDownloadError.class, this::onFileDownloadError)
-        // TODO: on url extract error we shoudl just keep processing the files
         .match(UrlsExtracted.class, this::onUrlsExtracted)
         .build();
   }

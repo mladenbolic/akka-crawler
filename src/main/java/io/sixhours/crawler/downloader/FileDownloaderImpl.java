@@ -18,8 +18,6 @@ import org.apache.commons.io.FilenameUtils;
 /**
  * Class for downloading files.
  *
- * <p>Files are downloaded
- *
  * @author Mladen Bolic
  */
 @SuppressWarnings("PMD.AvoidFileStream")
@@ -72,7 +70,7 @@ public class FileDownloaderImpl implements FileDownloader {
       try {
         inputStream.close();
       } catch (IOException e) {
-        e.printStackTrace();
+        throw new RuntimeException(e);
       }
     }
   }

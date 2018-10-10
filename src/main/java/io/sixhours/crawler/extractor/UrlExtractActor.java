@@ -5,14 +5,14 @@ import akka.actor.Actor;
 import akka.actor.Props;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import io.sixhours.crawler.downloader.FileDownloadActor.FileDownloadError;
-import io.sixhours.crawler.downloader.FileDownloadException;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
 /**
- * @author
+ * Actor for handling link extractions from specified url.
+ *
+ * @author Mladen Bolic
  */
 @RequiredArgsConstructor
 public class UrlExtractActor extends AbstractActor {
@@ -21,7 +21,7 @@ public class UrlExtractActor extends AbstractActor {
 
   private final UrlExtractor urlExtractor;
 
-  public static final String NAME = "url-extractor";
+  public static final String NAME = "url-extract";
 
   public static Props props(UrlExtractor urlExtractor) {
     return Props.create(UrlExtractActor.class, urlExtractor);
@@ -57,7 +57,9 @@ public class UrlExtractActor extends AbstractActor {
     UrlExtractResult result;
     try {
       result = this.urlExtractor.extractUrls(baseUri, path);
+
       getSender().tell(new UrlsExtracted(url, path, result.getUrls()), getSelf());
+      getContext().stop(getSelf());
     } catch (UrlExtractException e) {
       getSender().tell(new UrlExtractError(url), Actor.noSender());
     }

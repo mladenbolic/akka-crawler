@@ -3,9 +3,18 @@ package io.sixhours.crawler.downloader;
 import io.sixhours.crawler.downloader.FileDownloadActor.FileDownloadResult;
 
 /**
- * @author
+ * File downloader used for downloading files from specified url.
+ *
+ * @author Mladen Bolic
  */
 public interface FileDownloader {
 
-  FileDownloadResult downloadFile(String currentUrl) throws FileDownloadException;
+  /**
+   * Downloads file from specified url.
+   *
+   * @param url the url location of the file
+   * @return File download result
+   * @throws FileDownloadException
+   */
+  FileDownloadResult downloadFile(String url) throws FileDownloadException;
 }
