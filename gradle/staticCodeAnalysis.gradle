@@ -9,7 +9,7 @@ checkstyle {
 }
 
 spotbugs {
-    toolVersion = "3.1.7"
+    toolVersion = "3.1.5"
     ignoreFailures = false
     excludeFilter = file("${rootGradleDir}/static-code-analysis/spotbugs/exclude.xml")
 }
