@@ -1,5 +1,6 @@
 package io.sixhours.crawler.supervisor;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -13,11 +14,11 @@ import java.util.Set;
  */
 public class CrawlStatus implements CrawlStatusTmp {
 
-  private Set<String> total = new HashSet<>();
-  private Set<String> remaining = new HashSet<>();
-  private Set<String> processing = new HashSet<>();
-  private Set<String> processed = new HashSet<>();
-  private Set<String> failed = new HashSet<>();
+  private final Set<String> total = new HashSet<>();
+  private final Set<String> remaining = new HashSet<>();
+  private final Set<String> processing = new HashSet<>();
+  private final Set<String> processed = new HashSet<>();
+  private final Set<String> failed = new HashSet<>();
 
   @Override
   public void add(String url) {
@@ -46,11 +47,13 @@ public class CrawlStatus implements CrawlStatusTmp {
     failed.add(url);
   }
 
+  @CheckReturnValue
   @Override
   public Set<String> getRemaining() {
     return remaining;
   }
 
+  @CheckReturnValue
   @Override
   public Set<String> getFailed() {
     return failed;
