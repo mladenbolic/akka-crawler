@@ -71,7 +71,7 @@ public class FileDownloaderImpl implements FileDownloader {
       try {
         inputStream.close();
       } catch (IOException e) {
-        throw new RuntimeException(e);
+        throw new FileDownloadException(e.getMessage(), e);
       }
     }
   }
