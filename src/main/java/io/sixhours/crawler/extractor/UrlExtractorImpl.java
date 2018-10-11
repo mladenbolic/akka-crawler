@@ -25,11 +25,11 @@ public class UrlExtractorImpl implements UrlExtractor {
   @Override
   public UrlExtractResult extractUrls(String baseUri, String filePath) throws UrlExtractException {
     File file = new File(filePath);
-    LineIterator it = null;
     Set<String> urls = new HashSet<>();
 
-    try {
-      it = FileUtils.lineIterator(file, StandardCharsets.UTF_8.name());
+    try (
+        LineIterator it = FileUtils.lineIterator(file, StandardCharsets.UTF_8.name())
+    ) {
       while (it.hasNext()) {
         String line = it.nextLine();
 
@@ -56,8 +56,6 @@ public class UrlExtractorImpl implements UrlExtractor {
       }
     } catch (IOException e) {
       throw new UrlExtractException(e.getMessage(), e);
-    } finally {
-      LineIterator.closeQuietly(it);
     }
     return new UrlExtractResult(urls);
   }

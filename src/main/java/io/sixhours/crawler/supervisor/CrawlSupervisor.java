@@ -32,7 +32,7 @@ public class CrawlSupervisor extends AbstractActor {
 
   private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
 
-  private final CrawlStatusTmp crawlStatus;
+  private final CrawlStatus crawlStatus;
 
   private final Function<ActorRefFactory, ActorRef> fileDownloadCreator;
 
@@ -53,7 +53,7 @@ public class CrawlSupervisor extends AbstractActor {
 
   public static final String NAME = "crawl-supervisor";
 
-  public static Props props(CrawlStatusTmp crawlStatus,
+  public static Props props(CrawlStatus crawlStatus,
       Function<ActorRefFactory, ActorRef> fileDownloadCreator,
       Function<ActorRefFactory, ActorRef> urlExtractorCreator) {
     return Props.create(CrawlSupervisor.class, crawlStatus, fileDownloadCreator,
