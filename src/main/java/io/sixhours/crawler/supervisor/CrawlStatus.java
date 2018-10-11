@@ -20,17 +20,22 @@ public class CrawlStatus {
   private final Set<String> processed = new HashSet<>();
   private final Set<String> failed = new HashSet<>();
 
+  /**
+   * Adds given url to the list of total and remaing urls.
+   *
+   * <p>If url already exists, nothing will be added.
+   *
+   * @param url the url we are going to save to crawl status
+   */
   public void add(String url) {
     if (!total.contains(url)) {
-      remaining.add(url);
       total.add(url);
+      remaining.add(url);
     }
   }
 
   public void addAll(Collection<String> urls) {
-    for (String url : urls) {
-      add(url);
-    }
+    urls.forEach(this::add);
   }
 
   public void addProcessed(String url) {
@@ -44,8 +49,23 @@ public class CrawlStatus {
   }
 
   @CheckReturnValue
+  public Set<String> getTotal() {
+    return total;
+  }
+
+  @CheckReturnValue
   public Set<String> getRemaining() {
     return remaining;
+  }
+
+  @CheckReturnValue
+  public Set<String> getProcessing() {
+    return processing;
+  }
+
+  @CheckReturnValue
+  public Set<String> getProcessed() {
+    return processed;
   }
 
   @CheckReturnValue
@@ -53,6 +73,13 @@ public class CrawlStatus {
     return failed;
   }
 
+  /**
+   * Returns {@code Opttional} of next url that should be processed.
+   *
+   * <p>If all urls are processed, {@code Optional.empty()} is returned.
+   *
+   * @return {@code Optional} containing next url
+   */
   public Optional<String> next() {
     Iterator<String> iterator = remaining.iterator();
 
@@ -68,9 +95,14 @@ public class CrawlStatus {
   }
 
   public boolean isFinished() {
-    return remaining.isEmpty() && processing.isEmpty();
+    return processing.isEmpty() && remaining.isEmpty();
   }
 
+  /**
+   * Prints current crawl status.
+   *
+   * @return string containing current crawl status
+   */
   public String print() {
     return String
         .format("Total: %s, Processed: %s, In Progress: %s, Failed: %s",

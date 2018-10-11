@@ -14,7 +14,6 @@ import io.sixhours.crawler.downloader.FileDownloadActor.FileDownloadError;
 import io.sixhours.crawler.downloader.FileDownloadActor.FileDownloadResult;
 import io.sixhours.crawler.extractor.UrlExtractActor.ExtractUrls;
 import io.sixhours.crawler.extractor.UrlExtractActor.UrlsExtracted;
-import io.sixhours.crawler.extractor.UrlExtractor;
 import io.sixhours.crawler.supervisor.CrawlSupervisor.CrawlFinished;
 import io.sixhours.crawler.supervisor.CrawlSupervisor.StartCrawling;
 import java.util.Arrays;
@@ -27,7 +26,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -45,9 +43,6 @@ public class CrawlSupervisorTest {
 
   @Spy
   private CrawlStatus crawlStatus;
-
-  @Mock
-  private UrlExtractor urlExtractor;
 
   static ActorSystem system;
 
