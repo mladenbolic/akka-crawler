@@ -2,6 +2,8 @@
 
 Application that crawles web sites and prints the list of all visited urls. 
 
+>NOTE: Please use different url than the one specified in code. This one is just for illustration purposes.
+
 ## Getting Started
 
 These instructions will explain you how to get a copy of the project up and running on your local machine for 
