@@ -47,7 +47,7 @@ public class UrlExtractorImplTest {
     URL url = Thread.currentThread().getContextClassLoader().getResource(EXISTING_FILE_URL);
     String file = url.getFile();
 
-    Set expectedResult = new HashSet(
+    Set<String> expectedResult = new HashSet<>(
         Arrays.asList("http://sixhours.io/scripts.js", "http://sixhours.io/page1"));
 
     UrlExtractResult result = urlExtractor
