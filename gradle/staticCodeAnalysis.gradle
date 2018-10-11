@@ -1,5 +1,5 @@
 apply plugin: 'checkstyle'
-apply plugin: 'findbugs'
+apply plugin: 'com.github.spotbugs'
 apply plugin: 'pmd'
 
 checkstyle {
@@ -8,10 +8,10 @@ checkstyle {
     configFile = file("${rootGradleDir}/static-code-analysis/checkstyle/checkstyle.xml")
 }
 
-findbugs {
-    toolVersion = "3.0.1"
+spotbugs {
+    toolVersion = "3.1.7"
     ignoreFailures = false
-    excludeFilter = file("${rootGradleDir}/static-code-analysis/findbugs/exclude.xml")
+    excludeFilter = file("${rootGradleDir}/static-code-analysis/spotbugs/exclude.xml")
 }
 
 pmd {
@@ -43,7 +43,7 @@ tasks.withType(Checkstyle) {
     }
 }
 
-tasks.withType(FindBugs) {
+tasks.withType(SpotBugs) {
     reports {
         xml.enabled false
         html.enabled true
