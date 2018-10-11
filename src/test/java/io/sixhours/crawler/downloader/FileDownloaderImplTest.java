@@ -12,6 +12,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+/**
+ * Test class for {@code FileDownloaderImpl}.
+ *
+ * @author Mladen Bolic
+ */
 public class FileDownloaderImplTest {
 
   private static final String EXISTING_URL = "page1";

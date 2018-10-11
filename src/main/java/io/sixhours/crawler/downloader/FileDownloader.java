@@ -14,7 +14,7 @@ public interface FileDownloader {
    *
    * @param url the url location of the file
    * @return File download result
-   * @throws FileDownloadException
+   * @throws FileDownloadException custom exception during file download
    */
   FileDownloadResult downloadFile(String url) throws FileDownloadException;
 }

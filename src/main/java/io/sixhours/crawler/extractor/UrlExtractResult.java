@@ -4,7 +4,9 @@ import java.util.Set;
 import lombok.Value;
 
 /**
- * @author
+ * Result when extracting the urls using {@code UrlExtractor}.
+ *
+ * @author Mladen Bolic
  */
 @Value
 public class UrlExtractResult {

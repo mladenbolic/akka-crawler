@@ -20,6 +20,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+/**
+ * Test class for {@code FileDownloadActor}.
+ *
+ * @author Mladen Bolic
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class FileDownloadActorTest {
 

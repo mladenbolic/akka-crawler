@@ -1,7 +1,6 @@
 package io.sixhours.crawler.extractor;
 
 import akka.actor.AbstractActor;
-import akka.actor.Actor;
 import akka.actor.Props;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -19,12 +18,18 @@ public class UrlExtractActor extends AbstractActor {
 
   private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
 
+  private final String baseUri;
+
   private final UrlExtractor urlExtractor;
 
-  public static final String NAME = "url-extract";
+  public static final String NAME_PREFIX = "url-extract-%s";
 
-  public static Props props(UrlExtractor urlExtractor) {
-    return Props.create(UrlExtractActor.class, urlExtractor);
+  public static Props props(String baseUri, UrlExtractor urlExtractor) {
+    return Props.create(UrlExtractActor.class, baseUri, urlExtractor);
+  }
+
+  public static String name(String suffix) {
+    return String.format(NAME_PREFIX, suffix);
   }
 
   @Value
@@ -32,7 +37,6 @@ public class UrlExtractActor extends AbstractActor {
 
     private final String url;
     private final String path;
-    private final String baseUri;
   }
 
   @Value
@@ -40,7 +44,7 @@ public class UrlExtractActor extends AbstractActor {
 
     private final String url;
     private final String path;
-    private final Set<String> urls;
+    private final Set<String> newUrls;
   }
 
   @Value
@@ -52,17 +56,11 @@ public class UrlExtractActor extends AbstractActor {
   private void onExtractUrls(ExtractUrls message) {
     String url = message.url;
     String path = message.path;
-    String baseUri = message.baseUri;
 
-    UrlExtractResult result;
-    try {
-      result = this.urlExtractor.extractUrls(baseUri, path);
+    UrlExtractResult result = this.urlExtractor.extractUrls(this.baseUri, path);
 
-      getSender().tell(new UrlsExtracted(url, path, result.getUrls()), getSelf());
-      getContext().stop(getSelf());
-    } catch (UrlExtractException e) {
-      getSender().tell(new UrlExtractError(url), Actor.noSender());
-    }
+    getSender().tell(new UrlsExtracted(url, path, result.getUrls()), getSelf());
+    getContext().stop(getSelf());
   }
 
   @Override

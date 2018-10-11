@@ -13,6 +13,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+/**
+ * Test class for {@code UrlExtractorImpl}.
+ *
+ * @author Mladen Bolic
+ */
 public class UrlExtractorImplTest {
 
   private static final String EXISTING_FILE_URL = "index.html";
@@ -56,7 +61,7 @@ public class UrlExtractorImplTest {
     URL url = Thread.currentThread().getContextClassLoader().getResource(EXISTING_FILE_URL);
     String file = url.getFile().replace(EXISTING_FILE_URL, NON_EXISTING_FILE_URL);
 
-    UrlExtractResult result = urlExtractor
+    urlExtractor
         .extractUrls(BASE_URI, file);
 
     fail("Should throw UrlExtractException");

@@ -30,6 +30,7 @@ dependencies {
     implementation 'org.asynchttpclient:async-http-client:2.5.3'
     implementation 'org.jsoup:jsoup:1.11.3'
 
+
     annotationProcessor 'org.projectlombok:lombok:1.18.2'
     compileOnly 'org.projectlombok:lombok:1.18.2'
 

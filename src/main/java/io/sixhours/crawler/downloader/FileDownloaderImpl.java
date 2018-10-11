@@ -31,7 +31,7 @@ public class FileDownloaderImpl implements FileDownloader {
 
   private final String downloadDir;
 
-  public FileDownloaderImpl(String downloadDir){
+  public FileDownloaderImpl(String downloadDir) {
     this.downloadDir = downloadDir;
   }
 
@@ -65,6 +65,7 @@ public class FileDownloaderImpl implements FileDownloader {
 
       return new FileDownloadResult(url, downloadDir + filePath);
     } catch (IOException e) {
+      // throw exception in order to keep track of failed downloaded pages
       throw new FileDownloadException(e.getMessage(), e);
     } finally {
       try {

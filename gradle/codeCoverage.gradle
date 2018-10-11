@@ -2,7 +2,7 @@ apply plugin: 'jacoco'
 
 buildscript {
     ext {
-        jacocoExcludeList = ['**/*/CrawlerMain.class']
+        jacocoExcludeList = ['**/*/App.class','**/*/AkkaCrawlerImpl.class']
         jacocoIncludeList = ['io.sixhours.crawler.*']
         jacocoReportDir = "${buildDir}/reports/jacoco"
         jacocoDestFile = "${buildDir}/jacoco/jacocoTest.exec"

@@ -57,8 +57,8 @@ public class FileDownloadActor extends AbstractActor {
     String url = message.url;
 
     try {
-      log.info("FileDownloadActor, Parent: {}", getContext().getParent());
       FileDownloadResult result = fileDownloader.downloadFile(url);
+
       getSender().tell(result, Actor.noSender());
       getContext().stop(getSelf());
     } catch (FileDownloadException e) {
