@@ -90,6 +90,7 @@ public class CrawlSupervisor extends AbstractActor {
     log.info("============================================================");
     log.info(crawlStatus.print());
     log.info("============================================================\n");
+    log.info("Failed urls:");
     crawlStatus.getFailed()
         .forEach(log::info);
 
