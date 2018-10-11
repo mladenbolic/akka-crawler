@@ -1,6 +1,6 @@
 # Akka Crawler
 
-Application that crawles web sites and prints the list of all visited urls. 
+Application for crawling web sites and printing the list of all visited urls. 
 
 ## Getting Started
 
