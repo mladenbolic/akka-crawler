@@ -77,7 +77,7 @@ public class FileDownloaderImpl implements FileDownloader {
   }
 
   private void createFileIfNotExists(String fileUri) throws IOException {
-    Path filePath = Paths.get(downloadDir + fileUri);
+    Path filePath = Paths.get(downloadDir, fileUri);
     Path parentPath = filePath.getParent();
     if (!Files.exists(filePath) && !Files.isDirectory(filePath)) {
       if (parentPath != null) {

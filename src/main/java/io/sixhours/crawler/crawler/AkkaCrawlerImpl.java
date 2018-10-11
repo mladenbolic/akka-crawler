@@ -10,8 +10,10 @@ import io.sixhours.crawler.extractor.UrlExtractorImpl;
 import io.sixhours.crawler.supervisor.CrawlStatus;
 import io.sixhours.crawler.supervisor.CrawlSupervisor;
 import io.sixhours.crawler.supervisor.CrawlSupervisor.StartCrawling;
+import java.io.File;
 import java.util.UUID;
 import java.util.function.Function;
+import org.apache.commons.io.FileUtils;
 
 /**
  * Class for crawling the websites.
@@ -23,7 +25,8 @@ import java.util.function.Function;
 public class AkkaCrawlerImpl implements Crawler {
 
   private static final String DOWNLOAD_DIR =
-      System.getProperty("user.home") + "/Downloads/Akka-Crawler";
+      FileUtils.getUserDirectory() + File.separator + "Downloads" + File.separator + "Akka-Crawler"
+          + File.separator;
 
   @Override
   public void crawl(String url) {
