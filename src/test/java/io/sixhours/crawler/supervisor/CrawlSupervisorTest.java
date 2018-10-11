@@ -1,7 +1,5 @@
 package io.sixhours.crawler.supervisor;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -9,16 +7,13 @@ import static org.mockito.Mockito.when;
 import akka.actor.ActorRef;
 import akka.actor.ActorRefFactory;
 import akka.actor.ActorSystem;
-import akka.testkit.javadsl.EventFilter;
 import akka.testkit.javadsl.TestKit;
 import com.typesafe.config.ConfigFactory;
 import io.sixhours.crawler.downloader.FileDownloadActor.DownloadFile;
 import io.sixhours.crawler.downloader.FileDownloadActor.FileDownloadError;
 import io.sixhours.crawler.downloader.FileDownloadActor.FileDownloadResult;
-import io.sixhours.crawler.extractor.UrlExtractActor;
 import io.sixhours.crawler.extractor.UrlExtractActor.ExtractUrls;
 import io.sixhours.crawler.extractor.UrlExtractActor.UrlsExtracted;
-import io.sixhours.crawler.extractor.UrlExtractException;
 import io.sixhours.crawler.extractor.UrlExtractor;
 import io.sixhours.crawler.supervisor.CrawlSupervisor.CrawlFinished;
 import io.sixhours.crawler.supervisor.CrawlSupervisor.StartCrawling;
@@ -190,86 +185,5 @@ public class CrawlSupervisorTest {
     probe.expectNoMessage();
 
     verify(crawlStatus, times(1)).getFailed();
-  }
-
-  @Test
-  public void test() {
-    new TestKit(system) {{
-      TestKit probe = new TestKit(system);
-
-      when(urlExtractor.extractUrls(any(String.class), any(String.class)))
-          .thenThrow(new UrlExtractException("error"));
-
-      Function<ActorRefFactory, ActorRef> fileDownloadCreator = param -> probe.getRef();
-      //      Function<ActorRefFactory, ActorRef> urlExtractorCreator = param -> probe.getRef();
-      Function<ActorRefFactory, ActorRef> urlExtractorCreator = actorRefFactory -> actorRefFactory
-          .actorOf(UrlExtractActor.props(TEST_URL, urlExtractor),
-              "url-extract");
-
-      ActorRef crawlSupervisor = system
-          .actorOf(CrawlSupervisor.props(crawlStatus,
-              fileDownloadCreator, urlExtractorCreator), "crawl-supervisor");
-
-      //    ActorRef urlExtractorActor = (ActorRef) Await.result(ask(crawlSupervisor,
-      //        UrlExtractActor.props("http://some.base.uri", urlExtractor), 5000), Duration.ofSeconds(5));
-      //#create
-      // probe.send(crawlSupervisor, new FileDownloadResult(TEST_URL, "/test/path"));
-
-      // probe.expectMsgEquals(new ExtractUrls(TEST_URL, "/test/path"));
-      //    ExtractUrls extractUrlsMessage = new ExtractUrls("http://some.url", "/some/path");
-      //    urlExtractorActor.tell(extractUrlsMessage, probe.getRef());
-      //    crawlSupervisor.tell(new Exception("test"), ActorRef.noSender());
-
-      // probe.watch(child);
-      // TODO: check that probe is restarted
-      // expectMsgClass(UrlExtractException.class);
-      // probe.awaitAssert(() ->)
-      //#resume
-
-      // probe.send(crawlSupervisor, new FileDownloadResult(TEST_URL, "/test/path"));
-
-      //      final boolean result = new EventFilter(Logging.Error.class, system)
-      //          .from("akka://test-system/user/crawl-supervisor")
-      //          .message("Url extraction error: error")
-      //          .occurrences(1)
-      //          .intercept(() -> {
-      //            probe.send(crawlSupervisor, new FileDownloadResult(TEST_URL, "/test/path"));
-      //            return true;
-      //          });
-
-      //      final boolean result = new EventFilter(UrlExtractException.class, system)
-      //          .from("akka://test-system/user/crawl-supervisor")
-      //          .message("error")
-      //          .occurrences(1)
-      //          .intercept(() -> {
-      //            probe.send(crawlSupervisor, new FileDownloadResult(TEST_URL, "/test/path"));
-      //            return true;
-      //          });
-
-      //      probe.send(crawlSupervisor, new FileDownloadResult(TEST_URL, "/test/path"));
-
-      probe.send(crawlSupervisor, new FileDownloadResult(TEST_URL, TEST_PATH));
-
-      final boolean result = new EventFilter(UrlExtractException.class, system)
-          //          .occurrences(1)
-          .intercept(() -> {
-
-            return true;
-          });
-
-      expectNoMessage();
-
-      assertThat(result).isTrue();
-
-      //    child.tell(42, ActorRef.noSender());
-      //    assert Await.result(ask(child, "get", 5000), timeout).equals(42);
-      //    child.tell(new ArithmeticException(), ActorRef.noSender());
-      //    assert Await.result(ask(child, "get", 5000), timeout).equals(42);
-      //    //#resume
-      //
-      //    //#restart
-      //    child.tell(new NullPointerException(), ActorRef.noSender());
-      //    assert Await.result(ask(child, "get", 5000), timeout).equals(0);
-    }};
   }
 }
