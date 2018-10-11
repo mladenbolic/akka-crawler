@@ -38,6 +38,19 @@ public class CrawlSupervisor extends AbstractActor {
 
   private final Function<ActorRefFactory, ActorRef> urlExtractorCreator;
 
+  private SupervisorStrategy strategy = new OneForOneStrategy(3, Duration.ofMinutes(1),
+      DeciderBuilder
+          .match(UrlExtractException.class, e -> {
+            log.error("Url extraction error: {}", e.getMessage());
+            return SupervisorStrategy.resume();
+          })
+          .match(Throwable.class, e -> {
+            log.error("Unexpected error: {}", e.getMessage());
+            return SupervisorStrategy.stop();
+          })
+          .build()
+  );
+
   public static final String NAME = "crawl-supervisor";
 
   public static Props props(CrawlStatusTmp crawlStatus,
@@ -57,19 +70,6 @@ public class CrawlSupervisor extends AbstractActor {
   public static class CrawlFinished {
 
   }
-
-  private SupervisorStrategy strategy = new OneForOneStrategy(3, Duration.ofMinutes(1),
-      DeciderBuilder
-          .match(UrlExtractException.class, e -> {
-            log.error("Url extraction error: {}", e.getMessage());
-            return SupervisorStrategy.resume();
-          })
-          .match(Throwable.class, e -> {
-            log.error("Unexpected error: {}", e.getMessage());
-            return SupervisorStrategy.stop();
-          })
-          .build()
-  );
 
   @Override
   public SupervisorStrategy supervisorStrategy() {
