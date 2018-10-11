@@ -24,6 +24,7 @@
     <rule ref="category/java/bestpractices.xml">
         <exclude name="GuardLogStatement"/>
         <exclude name="JUnitTestContainsTooManyAsserts"/>
+        <exclude name="JUnitAssertionsShouldIncludeMessage"/>
         <exclude name="AvoidPrintStackTrace"/>
         <exclude name="SystemPrintln"/>
     </rule>
