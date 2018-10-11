@@ -25,7 +25,7 @@ version '1.0.0-SNAPSHOT'
 targetCompatibility = JavaVersion.VERSION_1_8
 sourceCompatibility = JavaVersion.VERSION_1_8
 
-mainClassName = 'io.sixhours.crawler.CrawlerMain'
+mainClassName = 'io.sixhours.crawler.App'
 
 dependencies {
     implementation 'com.typesafe.akka:akka-actor_2.12:2.5.16'
