@@ -28,7 +28,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class FileDownloadActorTest {
 
-  private static final String TEST_BASE_URL = "http://test.url/";
   private static final String TEST_URL = "http://test.url/contact";
   private static final String TEST_PATH = "/test/path";
 

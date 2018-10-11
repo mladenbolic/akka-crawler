@@ -41,8 +41,12 @@ import org.mockito.junit.MockitoJUnitRunner;
  *
  * @author Mladen Bolic
  */
+@SuppressWarnings({"PMD.NonStaticInitializer", "PMD.JUnitTestsShouldIncludeAssert"})
 @RunWith(MockitoJUnitRunner.class)
 public class CrawlSupervisorTest {
+
+  private static final String TEST_URL = "http://test.url/";
+  private static final String TEST_PATH = "/test/path";
 
   @Spy
   private CrawlStatus crawlStatus;
@@ -68,7 +72,7 @@ public class CrawlSupervisorTest {
   public void givenUrl_whenStartCrawling_thenSendDownloadFile() {
     TestKit probe = new TestKit(system);
 
-    when(crawlStatus.next()).thenReturn(Optional.of("http://test.url/"));
+    when(crawlStatus.next()).thenReturn(Optional.of(TEST_URL));
 
     Function<ActorRefFactory, ActorRef> fileDownloadCreator = param -> probe.getRef();
     Function<ActorRefFactory, ActorRef> urlExtractorCreator = param -> probe.getRef();
@@ -77,11 +81,11 @@ public class CrawlSupervisorTest {
         crawlStatus,
         fileDownloadCreator, urlExtractorCreator));
 
-    probe.send(crawlSupervisor, new StartCrawling("http://test.url/"));
+    probe.send(crawlSupervisor, new StartCrawling(TEST_URL));
 
-    probe.expectMsgEquals(new DownloadFile("http://test.url/"));
+    probe.expectMsgEquals(new DownloadFile(TEST_URL));
 
-    verify(crawlStatus, times(1)).add("http://test.url/");
+    verify(crawlStatus, times(1)).add(TEST_URL);
     verify(crawlStatus, times(1)).next();
   }
 
@@ -96,9 +100,9 @@ public class CrawlSupervisorTest {
         .actorOf(CrawlSupervisor.props(crawlStatus,
             fileDownloadCreator, urlExtractorCreator));
 
-    probe.send(crawlSupervisor, new FileDownloadResult("http://test.url/", "/test/path"));
+    probe.send(crawlSupervisor, new FileDownloadResult(TEST_URL, TEST_PATH));
 
-    probe.expectMsgEquals(new ExtractUrls("http://test.url/", "/test/path"));
+    probe.expectMsgEquals(new ExtractUrls(TEST_URL, TEST_PATH));
   }
 
   @Test
@@ -112,11 +116,11 @@ public class CrawlSupervisorTest {
         .actorOf(CrawlSupervisor.props(crawlStatus,
             fileDownloadCreator, urlExtractorCreator));
 
-    probe.send(crawlSupervisor, new FileDownloadError("http://test.url/"));
+    probe.send(crawlSupervisor, new FileDownloadError(TEST_URL));
 
     probe.expectNoMessage();
 
-    verify(crawlStatus, times(1)).addFailed("http://test.url/");
+    verify(crawlStatus, times(1)).addFailed(TEST_URL);
   }
 
   @Test
@@ -133,13 +137,13 @@ public class CrawlSupervisorTest {
         .actorOf(CrawlSupervisor.props(crawlStatus,
             fileDownloadCreator, urlExtractorCreator));
 
-    probe.send(crawlSupervisor, new UrlsExtracted("http://test.url/", "/test/path",
+    probe.send(crawlSupervisor, new UrlsExtracted(TEST_URL, TEST_PATH,
         extractedUrls));
 
     probe.expectNoMessage();
 
     verify(crawlStatus, times(1)).addAll(extractedUrls);
-    verify(crawlStatus, times(1)).addProcessed("http://test.url/");
+    verify(crawlStatus, times(1)).addProcessed(TEST_URL);
   }
 
   @Test
@@ -160,13 +164,13 @@ public class CrawlSupervisorTest {
         .actorOf(CrawlSupervisor.props(crawlStatus,
             fileDownloadCreator, urlExtractorCreator));
 
-    probe.send(crawlSupervisor, new UrlsExtracted("http://test.url/", "/test/path",
+    probe.send(crawlSupervisor, new UrlsExtracted(TEST_URL, TEST_PATH,
         extractedUrls));
 
     probe.expectMsgAllOf(new DownloadFile("http://a.com/"), new DownloadFile("http://b.com/"));
 
     verify(crawlStatus, times(1)).addAll(extractedUrls);
-    verify(crawlStatus, times(1)).addProcessed("http://test.url/");
+    verify(crawlStatus, times(1)).addProcessed(TEST_URL);
     verify(crawlStatus, times(1)).getRemaining();
   }
 
@@ -199,7 +203,7 @@ public class CrawlSupervisorTest {
       Function<ActorRefFactory, ActorRef> fileDownloadCreator = param -> probe.getRef();
       //      Function<ActorRefFactory, ActorRef> urlExtractorCreator = param -> probe.getRef();
       Function<ActorRefFactory, ActorRef> urlExtractorCreator = actorRefFactory -> actorRefFactory
-          .actorOf(UrlExtractActor.props("http://test.url/", urlExtractor),
+          .actorOf(UrlExtractActor.props(TEST_URL, urlExtractor),
               "url-extract");
 
       ActorRef crawlSupervisor = system
@@ -209,9 +213,9 @@ public class CrawlSupervisorTest {
       //    ActorRef urlExtractorActor = (ActorRef) Await.result(ask(crawlSupervisor,
       //        UrlExtractActor.props("http://some.base.uri", urlExtractor), 5000), Duration.ofSeconds(5));
       //#create
-      // probe.send(crawlSupervisor, new FileDownloadResult("http://test.url/", "/test/path"));
+      // probe.send(crawlSupervisor, new FileDownloadResult(TEST_URL, "/test/path"));
 
-      // probe.expectMsgEquals(new ExtractUrls("http://test.url/", "/test/path"));
+      // probe.expectMsgEquals(new ExtractUrls(TEST_URL, "/test/path"));
       //    ExtractUrls extractUrlsMessage = new ExtractUrls("http://some.url", "/some/path");
       //    urlExtractorActor.tell(extractUrlsMessage, probe.getRef());
       //    crawlSupervisor.tell(new Exception("test"), ActorRef.noSender());
@@ -222,14 +226,14 @@ public class CrawlSupervisorTest {
       // probe.awaitAssert(() ->)
       //#resume
 
-      // probe.send(crawlSupervisor, new FileDownloadResult("http://test.url/", "/test/path"));
+      // probe.send(crawlSupervisor, new FileDownloadResult(TEST_URL, "/test/path"));
 
       //      final boolean result = new EventFilter(Logging.Error.class, system)
       //          .from("akka://test-system/user/crawl-supervisor")
       //          .message("Url extraction error: error")
       //          .occurrences(1)
       //          .intercept(() -> {
-      //            probe.send(crawlSupervisor, new FileDownloadResult("http://test.url/", "/test/path"));
+      //            probe.send(crawlSupervisor, new FileDownloadResult(TEST_URL, "/test/path"));
       //            return true;
       //          });
 
@@ -238,13 +242,13 @@ public class CrawlSupervisorTest {
       //          .message("error")
       //          .occurrences(1)
       //          .intercept(() -> {
-      //            probe.send(crawlSupervisor, new FileDownloadResult("http://test.url/", "/test/path"));
+      //            probe.send(crawlSupervisor, new FileDownloadResult(TEST_URL, "/test/path"));
       //            return true;
       //          });
 
-      //      probe.send(crawlSupervisor, new FileDownloadResult("http://test.url/", "/test/path"));
+      //      probe.send(crawlSupervisor, new FileDownloadResult(TEST_URL, "/test/path"));
 
-      probe.send(crawlSupervisor, new FileDownloadResult("http://test.url/", "/test/path"));
+      probe.send(crawlSupervisor, new FileDownloadResult(TEST_URL, TEST_PATH));
 
       final boolean result = new EventFilter(UrlExtractException.class, system)
           //          .occurrences(1)
@@ -252,7 +256,6 @@ public class CrawlSupervisorTest {
 
             return true;
           });
-
 
       expectNoMessage();
 
