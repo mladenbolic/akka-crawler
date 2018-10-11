@@ -1,7 +1,6 @@
 package io.sixhours.crawler.extractor;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -63,32 +62,5 @@ public class UrlExtractActorTest {
     assertThat(response.getUrl()).isEqualTo("http://some.url");
     assertThat(response.getPath()).isEqualTo("/some/path");
     assertThat(response.getNewUrls()).isEqualTo(Collections.emptySet());
-  }
-
-  @Test
-  public void givenNotExistingUrl_whenDownloadFile_thenFailWithException() throws Exception {
-//    new TestKit(system) {
-//      {
-//        TestKit probe = new TestKit(system);
-//
-//        when(urlExtractor.extractUrls(any(String.class), any(String.class)))
-//            .thenThrow(new UrlExtractException("error"));
-//
-//        ActorRef urlExtractorActor = system
-//            .actorOf(UrlExtractActor.props("http://some.base.uri", urlExtractor));
-//
-//        ExtractUrls extractUrlsMessage = new ExtractUrls("http://some.url", "/some/path");
-//        urlExtractorActor.tell(extractUrlsMessage, probe.getRef());
-//
-//        // UrlExtractError response = probe.expectMsgClass(UrlExtractError.class);
-//
-//        probe.expectMsgClass(Status.Failure.class);
-//
-//        verify(urlExtractor, times(1))
-//            .extractUrls(any(String.class), any(String.class));
-//        // assertThat(response.getUrl()).isEqualTo("http://some.url");
-//      }
-//    };
-    assertThat(true).isTrue();
   }
 }
