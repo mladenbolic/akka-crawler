@@ -46,6 +46,9 @@ public class FileDownloaderImpl implements FileDownloader {
       fileUrl = new URL(url);
       filePath = getFilePath(fileUrl);
 
+      // URLConnection connection = fileUrl.openConnection();
+      // connection.setConnectTimeout(5000);
+      // connection.setReadTimeout(3000);
       inputStream = fileUrl.openStream();
 
       createFileIfNotExists(filePath);
@@ -80,7 +83,7 @@ public class FileDownloaderImpl implements FileDownloader {
     Path filePath = Paths.get(downloadDir, fileUri);
     Path parentPath = filePath.getParent();
     if (!Files.exists(filePath) && !Files.isDirectory(filePath)) {
-      if (parentPath != null) {
+      if (parentPath != null && !Files.exists(parentPath)) {
         Files.createDirectories(parentPath);
       }
       Files.createFile(filePath);
