@@ -1,5 +1,6 @@
 package io.sixhours.crawler.crawler;
 
+import akka.actor.AbstractActor.ActorContext;
 import akka.actor.ActorRef;
 import akka.actor.ActorRefFactory;
 import akka.actor.ActorSystem;
@@ -12,6 +13,7 @@ import io.sixhours.crawler.supervisor.CrawlSupervisor;
 import io.sixhours.crawler.supervisor.CrawlSupervisor.StartCrawling;
 import java.io.File;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import org.apache.commons.io.FileUtils;
 
@@ -36,11 +38,16 @@ public class AkkaCrawlerImpl implements Crawler {
         .actorOf(CrawlSupervisor.props(
             new CrawlStatus(),
             getFileDownloadActorCreator(),
-            getUrlExtractActorCreator(url)
+            getUrlExtractActorCreator(url),
+            getTerminateCommand()
             ),
             CrawlSupervisor.NAME);
 
     crawlSupervisor.tell(new StartCrawling(url), ActorRef.noSender());
+  }
+
+  private Consumer<ActorContext> getTerminateCommand() {
+    return context -> context.system().terminate();
   }
 
   private Function<ActorRefFactory, ActorRef> getFileDownloadActorCreator() {

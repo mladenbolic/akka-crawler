@@ -16,6 +16,7 @@ import io.sixhours.crawler.extractor.UrlExtractActor.ExtractUrls;
 import io.sixhours.crawler.extractor.UrlExtractActor.UrlsExtracted;
 import io.sixhours.crawler.extractor.UrlExtractException;
 import java.time.Duration;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
@@ -38,6 +39,8 @@ public class CrawlSupervisor extends AbstractActor {
 
   private final Function<ActorRefFactory, ActorRef> urlExtractorCreator;
 
+  private final Consumer<ActorContext> terminate;
+
   private SupervisorStrategy strategy = new OneForOneStrategy(3, Duration.ofMinutes(1),
       DeciderBuilder
           .match(UrlExtractException.class, e -> {
@@ -55,9 +58,10 @@ public class CrawlSupervisor extends AbstractActor {
 
   public static Props props(CrawlStatus crawlStatus,
       Function<ActorRefFactory, ActorRef> fileDownloadCreator,
-      Function<ActorRefFactory, ActorRef> urlExtractorCreator) {
+      Function<ActorRefFactory, ActorRef> urlExtractorCreator,
+      Consumer<ActorContext> terminate) {
     return Props.create(CrawlSupervisor.class, crawlStatus, fileDownloadCreator,
-        urlExtractorCreator);
+        urlExtractorCreator, terminate);
   }
 
   @Value
@@ -94,8 +98,7 @@ public class CrawlSupervisor extends AbstractActor {
     crawlStatus.getFailed()
         .forEach(log::info);
 
-    // TODO: see when to terminate
-    // getContext().system().terminate();
+    terminate.accept(getContext());
   }
 
   private void onStartCrawling(StartCrawling message) {

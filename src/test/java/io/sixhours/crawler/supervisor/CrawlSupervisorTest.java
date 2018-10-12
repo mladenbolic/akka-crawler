@@ -4,6 +4,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import akka.actor.AbstractActor.ActorContext;
 import akka.actor.ActorRef;
 import akka.actor.ActorRefFactory;
 import akka.actor.ActorSystem;
@@ -21,6 +22,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -66,10 +68,12 @@ public class CrawlSupervisorTest {
 
     Function<ActorRefFactory, ActorRef> fileDownloadCreator = param -> probe.getRef();
     Function<ActorRefFactory, ActorRef> urlExtractorCreator = param -> probe.getRef();
+    Consumer<ActorContext> terminate = context -> {
+    };
 
     ActorRef crawlSupervisor = system.actorOf(CrawlSupervisor.props(
         crawlStatus,
-        fileDownloadCreator, urlExtractorCreator));
+        fileDownloadCreator, urlExtractorCreator, terminate));
 
     probe.send(crawlSupervisor, new StartCrawling(TEST_URL));
 
@@ -85,10 +89,12 @@ public class CrawlSupervisorTest {
 
     Function<ActorRefFactory, ActorRef> fileDownloadCreator = param -> probe.getRef();
     Function<ActorRefFactory, ActorRef> urlExtractorCreator = param -> probe.getRef();
+    Consumer<ActorContext> terminate = context -> {
+    };
 
     ActorRef crawlSupervisor = system
         .actorOf(CrawlSupervisor.props(crawlStatus,
-            fileDownloadCreator, urlExtractorCreator));
+            fileDownloadCreator, urlExtractorCreator, terminate));
 
     probe.send(crawlSupervisor, new FileDownloadResult(TEST_URL, TEST_PATH));
 
@@ -101,10 +107,12 @@ public class CrawlSupervisorTest {
 
     Function<ActorRefFactory, ActorRef> fileDownloadCreator = param -> probe.getRef();
     Function<ActorRefFactory, ActorRef> urlExtractorCreator = param -> probe.getRef();
+    Consumer<ActorContext> terminate = context -> {
+    };
 
     ActorRef crawlSupervisor = system
         .actorOf(CrawlSupervisor.props(crawlStatus,
-            fileDownloadCreator, urlExtractorCreator));
+            fileDownloadCreator, urlExtractorCreator, terminate));
 
     probe.send(crawlSupervisor, new FileDownloadError(TEST_URL));
 
@@ -122,10 +130,12 @@ public class CrawlSupervisorTest {
 
     Function<ActorRefFactory, ActorRef> fileDownloadCreator = param -> probe.getRef();
     Function<ActorRefFactory, ActorRef> urlExtractorCreator = param -> probe.getRef();
+    Consumer<ActorContext> terminate = context -> {
+    };
 
     ActorRef crawlSupervisor = system
         .actorOf(CrawlSupervisor.props(crawlStatus,
-            fileDownloadCreator, urlExtractorCreator));
+            fileDownloadCreator, urlExtractorCreator, terminate));
 
     probe.send(crawlSupervisor, new UrlsExtracted(TEST_URL, TEST_PATH,
         extractedUrls));
@@ -149,10 +159,12 @@ public class CrawlSupervisorTest {
 
     Function<ActorRefFactory, ActorRef> fileDownloadCreator = param -> probe.getRef();
     Function<ActorRefFactory, ActorRef> urlExtractorCreator = param -> probe.getRef();
+    Consumer<ActorContext> terminate = context -> {
+    };
 
     ActorRef crawlSupervisor = system
         .actorOf(CrawlSupervisor.props(crawlStatus,
-            fileDownloadCreator, urlExtractorCreator));
+            fileDownloadCreator, urlExtractorCreator, terminate));
 
     probe.send(crawlSupervisor, new UrlsExtracted(TEST_URL, TEST_PATH,
         extractedUrls));
@@ -170,10 +182,12 @@ public class CrawlSupervisorTest {
 
     Function<ActorRefFactory, ActorRef> fileDownloadCreator = param -> probe.getRef();
     Function<ActorRefFactory, ActorRef> urlExtractorCreator = param -> probe.getRef();
+    Consumer<ActorContext> terminate = context -> {
+    };
 
     ActorRef crawlSupervisor = system
         .actorOf(CrawlSupervisor.props(crawlStatus,
-            fileDownloadCreator, urlExtractorCreator));
+            fileDownloadCreator, urlExtractorCreator, terminate));
 
     probe.send(crawlSupervisor, new CrawlFinished());
 
