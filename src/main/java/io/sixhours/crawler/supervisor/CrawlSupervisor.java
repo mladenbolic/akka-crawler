@@ -118,7 +118,10 @@ public class CrawlSupervisor extends AbstractActor {
   }
 
   private void onFileDownloadError(FileDownloadError message) {
+    log.error("Error downloading url: {}", message.getUrl());
     crawlStatus.addFailed(message.getUrl());
+    crawlStatus.getRemaining()
+        .forEach(url -> getSelf().tell(new StartCrawling(url), ActorRef.noSender()));
   }
 
   private void onUrlsExtracted(UrlsExtracted message) {
