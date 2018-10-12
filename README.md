@@ -1,6 +1,6 @@
 # Akka Crawler
 
-Application for crawling web sites and printing the list of all visited urls. 
+ 
 
 >NOTE: Please use different url than the one specified in code. This one is just for illustration purposes.
 
@@ -25,7 +25,7 @@ To check if Java is already installed on your machine, open the terminal window 
 In order to run the application, you can execute the gradle `run` task with specified command line arguments `--args`. 
 This command will compile the application and start the main class. 
 
-    ./gradlew run --args="some arguments"
+    ./gradlew run --args="an url"
 
 ## Running Tests
 
