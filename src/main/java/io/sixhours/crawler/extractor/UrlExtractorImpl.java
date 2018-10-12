@@ -23,7 +23,7 @@ import org.jsoup.Jsoup;
 public class UrlExtractorImpl implements UrlExtractor {
 
   @Override
-  public UrlExtractResult extractUrls(String baseUri, String filePath) throws UrlExtractException {
+  public UrlExtractResult extractUrls(String url, String filePath) throws UrlExtractException {
     File file = new File(filePath);
     Set<String> urls = new HashSet<>();
 
@@ -34,23 +34,23 @@ public class UrlExtractorImpl implements UrlExtractor {
         String line = it.nextLine();
 
         urls.addAll(
-            getLinks(line, baseUri, "a[href]", "href")
+            getLinks(line, url, "a[href]", "href")
                 .filter(link -> !link.contains("mailto"))
                 .collect(Collectors.toList())
         );
 
         urls.addAll(
-            getLinks(line, baseUri, "script[src]", "src")
+            getLinks(line, url, "script[src]", "src")
                 .collect(Collectors.toList())
         );
 
         urls.addAll(
-            getLinks(line, baseUri, "img[src]", "src")
+            getLinks(line, url,"img[src]", "src")
                 .collect(Collectors.toList())
         );
 
         urls.addAll(
-            getLinks(line, baseUri, "link[href]", "href")
+            getLinks(line, url,"link[href]", "href")
                 .collect(Collectors.toList())
         );
       }
@@ -60,19 +60,20 @@ public class UrlExtractorImpl implements UrlExtractor {
     return new UrlExtractResult(urls);
   }
 
-  private Stream<String> getLinks(String content, String baseUri, String cssQuery,
+  private Stream<String> getLinks(String content, String url, String cssQuery,
       String attributeKey) {
 
-    return Jsoup.parseBodyFragment(content, baseUri)
+    return Jsoup.parseBodyFragment(content, url)
         .select(cssQuery).stream()
         .map(element -> element.absUrl(attributeKey))
-        .filter(link -> Objects.nonNull(link) && link.length() > 0)
-        .filter(link -> this.checkHost(baseUri, link));
+        .map(link -> link.contains("#")? link.substring(0, link.indexOf("#")) : link)
+        .filter(link -> link.length() > 0)
+        .filter(link -> this.checkHost(url, link));
   }
 
-  private boolean checkHost(String baseUri, String link) {
+  private boolean checkHost(String url, String link) {
     try {
-      return new URL(baseUri).getHost().equals(new URL(link).getHost());
+      return new URL(url).getHost().equals(new URL(link).getHost());
     } catch (MalformedURLException e) {
       throw new UrlExtractException(e.getMessage(), e);
     }

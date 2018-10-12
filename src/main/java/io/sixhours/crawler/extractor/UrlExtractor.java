@@ -10,9 +10,9 @@ public interface UrlExtractor {
   /**
    * Extracts links from given {@code filePath}.
    *
-   * @param baseUri websites base URL (e.g. http://google.com)
+   * @param url page url from which we are extracting urls (e.g. http://google.com/users)
    * @param filePath the path to the downloaded HTML page
    * @return url extract result containing list of found urls/links
    */
-  UrlExtractResult extractUrls(String baseUri, String filePath) throws UrlExtractException;
+  UrlExtractResult extractUrls(String url, String filePath) throws UrlExtractException;
 }

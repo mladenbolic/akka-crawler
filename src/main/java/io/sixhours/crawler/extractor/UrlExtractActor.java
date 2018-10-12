@@ -57,7 +57,7 @@ public class UrlExtractActor extends AbstractActor {
     String url = message.url;
     String path = message.path;
 
-    UrlExtractResult result = this.urlExtractor.extractUrls(this.baseUri, path);
+    UrlExtractResult result = this.urlExtractor.extractUrls(url, path);
 
     getSender().tell(new UrlsExtracted(url, path, result.getUrls()), getSelf());
     getContext().stop(getSelf());
