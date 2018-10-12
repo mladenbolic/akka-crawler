@@ -6,7 +6,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -45,12 +44,12 @@ public class UrlExtractorImpl implements UrlExtractor {
         );
 
         urls.addAll(
-            getLinks(line, url,"img[src]", "src")
+            getLinks(line, url, "img[src]", "src")
                 .collect(Collectors.toList())
         );
 
         urls.addAll(
-            getLinks(line, url,"link[href]", "href")
+            getLinks(line, url, "link[href]", "href")
                 .collect(Collectors.toList())
         );
       }
@@ -66,7 +65,7 @@ public class UrlExtractorImpl implements UrlExtractor {
     return Jsoup.parseBodyFragment(content, url)
         .select(cssQuery).stream()
         .map(element -> element.absUrl(attributeKey))
-        .map(link -> link.contains("#")? link.substring(0, link.indexOf("#")) : link)
+        .map(link -> link.contains("#") ? link.substring(0, link.indexOf("#")) : link)
         .filter(link -> link.length() > 0)
         .filter(link -> this.checkHost(url, link));
   }
