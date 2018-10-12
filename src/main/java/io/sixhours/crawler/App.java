@@ -7,6 +7,13 @@ import io.sixhours.crawler.crawler.Crawler;
 public class App {
 
   public static void main(String[] args) {
+    String url;
+    if(args == null){
+      url = "http://www.burgerking.no/";
+    } else {
+      url = args[0];
+    }
+
     Crawler crawler = new AkkaCrawlerImpl();
     crawler.crawl("http://www.burgerking.no/");
   }
