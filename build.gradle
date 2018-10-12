@@ -35,10 +35,10 @@ dependencies {
     implementation 'org.asynchttpclient:async-http-client:2.5.3'
     implementation 'org.jsoup:jsoup:1.11.3'
 
-    compileOnly 'com.github.spotbugs:spotbugs-annotations:3.1.5'
-
     annotationProcessor 'org.projectlombok:lombok:1.18.2'
     compileOnly 'org.projectlombok:lombok:1.18.2'
+
+    compileOnly 'com.github.spotbugs:spotbugs-annotations:3.1.5'
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'com.typesafe.akka:akka-testkit_2.12:2.5.16'
