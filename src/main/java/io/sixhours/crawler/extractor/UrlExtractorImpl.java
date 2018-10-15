@@ -35,27 +35,23 @@ public class UrlExtractorImpl implements UrlExtractor {
         urls.addAll(
             getLinks(line, url, "a[href]", "href")
                 .filter(link -> !link.contains("mailto"))
-                .collect(Collectors.toList())
+                .collect(Collectors.toSet())
         );
 
         urls.addAll(
-            getLinks(line, url, "script[src]", "src")
-                .collect(Collectors.toList())
-        );
-
-        urls.addAll(
-            getLinks(line, url, "img[src]", "src")
-                .collect(Collectors.toList())
+            getLinks(line, url, "[src]", "src")
+                .collect(Collectors.toSet())
         );
 
         urls.addAll(
             getLinks(line, url, "link[href]", "href")
-                .collect(Collectors.toList())
+                .collect(Collectors.toSet())
         );
       }
     } catch (IOException e) {
       throw new UrlExtractException(e.getMessage(), e);
     }
+
     return new UrlExtractResult(urls);
   }
 
@@ -66,11 +62,12 @@ public class UrlExtractorImpl implements UrlExtractor {
         .select(cssQuery).stream()
         .map(element -> element.absUrl(attributeKey))
         .map(link -> link.contains("#") ? link.substring(0, link.indexOf("#")) : link)
+        .map(link -> link.contains("?") ? link.substring(0, link.indexOf("?")) : link)
         .filter(link -> link.length() > 0)
-        .filter(link -> this.checkHost(url, link));
+        .filter(link -> this.isSameHost(url, link));
   }
 
-  private boolean checkHost(String url, String link) {
+  private boolean isSameHost(String url, String link) {
     try {
       return new URL(url).getHost().equals(new URL(link).getHost());
     } catch (MalformedURLException e) {

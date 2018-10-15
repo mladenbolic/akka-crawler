@@ -85,13 +85,26 @@ public class CrawlStatus {
 
     if (!remaining.isEmpty() && iterator.hasNext()) {
       String url = iterator.next();
-      remaining.remove(url);
+      iterator.remove();
       processing.add(url);
 
       return Optional.of(url);
     }
 
     return Optional.empty();
+  }
+
+  /**
+   * Returns batch of urls that should be processed.
+   *
+   * @return batch of urls
+   */
+  public Set<String> nextBatch() {
+    Set<String> result = new HashSet<>(remaining);
+    processing.addAll(remaining);
+    remaining.clear();
+
+    return result;
   }
 
   public boolean isFinished() {
@@ -105,7 +118,8 @@ public class CrawlStatus {
    */
   public String print() {
     return String
-        .format("Total: %s, Processed: %s, In Progress: %s, Failed: %s",
-            total.size(), processed.size(), processing.size(), failed.size());
+        .format(
+            "Total: %s, Processed: %s, In Progress: %s, Remaining: %s, Failed: %s",
+            total.size(), processed.size(), processing.size(), remaining.size(), failed.size());
   }
 }

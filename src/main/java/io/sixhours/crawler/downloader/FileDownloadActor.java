@@ -65,6 +65,7 @@ public class FileDownloadActor extends AbstractActor {
 
     Futures.future(() -> fileDownloader.downloadFile(url), executionContext)
         .onComplete(new OnComplete<FileDownloadResult>() {
+          @Override
           public void onComplete(Throwable failure, FileDownloadResult result) {
             if (failure != null) {
               sender.tell(new FileDownloadError(url), Actor.noSender());

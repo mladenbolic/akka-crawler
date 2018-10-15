@@ -19,7 +19,6 @@ public class App {
    */
   public static void main(String[] args) {
     String url = ArgsHandler.getUrl(args);
-    System.out.println("url: "+ url);
     Crawler crawler = new AkkaCrawlerImpl();
     crawler.crawl(url);
   }

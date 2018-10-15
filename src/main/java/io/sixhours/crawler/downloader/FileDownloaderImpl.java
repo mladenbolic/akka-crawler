@@ -46,9 +46,6 @@ public class FileDownloaderImpl implements FileDownloader {
       fileUrl = new URL(url);
       filePath = getFilePath(fileUrl);
 
-      // URLConnection connection = fileUrl.openConnection();
-      // connection.setConnectTimeout(5000);
-      // connection.setReadTimeout(3000);
       inputStream = fileUrl.openStream();
 
       createFileIfNotExists(filePath);
@@ -68,7 +65,6 @@ public class FileDownloaderImpl implements FileDownloader {
 
       return new FileDownloadResult(url, downloadDir + filePath);
     } catch (IOException e) {
-      // throw exception in order to keep track of failed downloaded pages
       throw new FileDownloadException(e.getMessage(), e);
     } finally {
       try {

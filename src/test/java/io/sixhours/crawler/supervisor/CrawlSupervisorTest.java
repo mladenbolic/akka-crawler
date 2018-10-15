@@ -152,10 +152,8 @@ public class CrawlSupervisorTest {
 
     Set<String> extractedUrls = new HashSet<>(Arrays.asList("http://a.com/", "http://b.com/"));
     when(crawlStatus.isFinished()).thenReturn(Boolean.FALSE);
-    when(crawlStatus.getRemaining())
+    when(crawlStatus.nextBatch())
         .thenReturn(extractedUrls);
-    when(crawlStatus.next()).thenReturn(Optional.of("http://a.com/"))
-        .thenReturn(Optional.of("http://b.com/"));
 
     Function<ActorRefFactory, ActorRef> fileDownloadCreator = param -> probe.getRef();
     Function<ActorRefFactory, ActorRef> urlExtractorCreator = param -> probe.getRef();
@@ -173,7 +171,7 @@ public class CrawlSupervisorTest {
 
     verify(crawlStatus, times(1)).addAll(extractedUrls);
     verify(crawlStatus, times(1)).addProcessed(TEST_URL);
-    verify(crawlStatus, times(1)).getRemaining();
+    verify(crawlStatus, times(1)).nextBatch();
   }
 
   @Test

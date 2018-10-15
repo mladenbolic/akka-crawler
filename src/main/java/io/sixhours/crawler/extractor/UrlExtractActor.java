@@ -60,6 +60,7 @@ public class UrlExtractActor extends AbstractActor {
 
     Futures.future(() -> this.urlExtractor.extractUrls(url, path), executionContext)
         .onComplete(new OnComplete<UrlExtractResult>() {
+          @Override
           public void onComplete(Throwable failure, UrlExtractResult result) {
             sender.tell(new UrlsExtracted(url, path, result.getUrls()), getSelf());
           }

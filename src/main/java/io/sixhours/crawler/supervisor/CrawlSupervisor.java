@@ -41,6 +41,9 @@ public class CrawlSupervisor extends AbstractActor {
 
   private final Consumer<ActorContext> terminate;
 
+  private ActorRef fileDownloaderActor;
+  private ActorRef urlExtractor;
+
   private SupervisorStrategy strategy = new OneForOneStrategy(3, Duration.ofMinutes(1),
       DeciderBuilder
           .match(UrlExtractException.class, e -> {
@@ -83,11 +86,23 @@ public class CrawlSupervisor extends AbstractActor {
   @Override
   public void preStart() {
     log.info("Crawler started");
+    fileDownloaderActor = fileDownloadCreator.apply(getContext());
+    urlExtractor = urlExtractorCreator.apply(getContext());
   }
 
   @Override
   public void postStop() {
     log.info("Crawler stopped");
+  }
+
+  private void onStartCrawling(StartCrawling message) {
+    String url = message.url;
+    crawlStatus.add(url);
+
+    log.info(crawlStatus.print());
+
+    crawlStatus.next()
+        .ifPresent(path -> fileDownloaderActor.tell(new DownloadFile(path), getSelf()));
   }
 
   private void onCrawlFinished(CrawlFinished message) {
@@ -101,27 +116,14 @@ public class CrawlSupervisor extends AbstractActor {
     terminate.accept(getContext());
   }
 
-  private void onStartCrawling(StartCrawling message) {
-    String url = message.url;
-    crawlStatus.add(url);
-
-    ActorRef fileDownloaderActor = fileDownloadCreator.apply(getContext());
-    crawlStatus.next()
-        .ifPresent(path -> fileDownloaderActor.tell(new DownloadFile(path), getSelf()));
-  }
-
   private void onFileDownloadResult(FileDownloadResult message) {
-    ActorRef urlExtractor = urlExtractorCreator.apply(getContext());
-    urlExtractor.tell(
-        new ExtractUrls(message.getUrl(), message.getPath()),
-        getSelf());
+    urlExtractor.tell(new ExtractUrls(message.getUrl(), message.getPath()), getSelf());
   }
 
   private void onFileDownloadError(FileDownloadError message) {
-    log.error("Error downloading url: {}", message.getUrl());
     crawlStatus.addFailed(message.getUrl());
-    crawlStatus.getRemaining()
-        .forEach(url -> getSelf().tell(new StartCrawling(url), ActorRef.noSender()));
+
+    log.info(crawlStatus.print());
   }
 
   private void onUrlsExtracted(UrlsExtracted message) {
@@ -133,8 +135,8 @@ public class CrawlSupervisor extends AbstractActor {
     if (crawlStatus.isFinished()) {
       getSelf().tell(new CrawlFinished(), ActorRef.noSender());
     } else {
-      crawlStatus.getRemaining()
-          .forEach(url -> getSelf().tell(new StartCrawling(url), ActorRef.noSender()));
+      crawlStatus.nextBatch()
+          .forEach(url -> fileDownloaderActor.tell(new DownloadFile(url), getSelf()));
     }
   }
 
