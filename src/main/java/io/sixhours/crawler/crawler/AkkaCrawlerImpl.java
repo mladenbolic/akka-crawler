@@ -4,6 +4,7 @@ import akka.actor.AbstractActor.ActorContext;
 import akka.actor.ActorRef;
 import akka.actor.ActorRefFactory;
 import akka.actor.ActorSystem;
+import akka.routing.RoundRobinPool;
 import io.sixhours.crawler.downloader.FileDownloadActor;
 import io.sixhours.crawler.downloader.FileDownloaderImpl;
 import io.sixhours.crawler.extractor.UrlExtractActor;
@@ -12,7 +13,6 @@ import io.sixhours.crawler.supervisor.CrawlStatus;
 import io.sixhours.crawler.supervisor.CrawlSupervisor;
 import io.sixhours.crawler.supervisor.CrawlSupervisor.StartCrawling;
 import java.io.File;
-import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import org.apache.commons.io.FileUtils;
@@ -51,15 +51,13 @@ public class AkkaCrawlerImpl implements Crawler {
   }
 
   private Function<ActorRefFactory, ActorRef> getFileDownloadActorCreator() {
-    return actorRefFactory -> actorRefFactory
-        .actorOf(FileDownloadActor.props(
-            new FileDownloaderImpl(DOWNLOAD_DIR)),
-            FileDownloadActor.name(String.valueOf(UUID.randomUUID())));
+    return actorRefFactory -> actorRefFactory.actorOf(new RoundRobinPool(50).props(
+        FileDownloadActor.props(
+            new FileDownloaderImpl(DOWNLOAD_DIR))));
   }
 
   private Function<ActorRefFactory, ActorRef> getUrlExtractActorCreator(String domain) {
-    return actorRefFactory -> actorRefFactory
-        .actorOf(UrlExtractActor.props(domain, new UrlExtractorImpl()),
-            UrlExtractActor.name(String.valueOf(UUID.randomUUID())));
+    return actorRefFactory -> actorRefFactory.actorOf(new RoundRobinPool(50).props(
+        UrlExtractActor.props(domain, new UrlExtractorImpl())));
   }
 }
