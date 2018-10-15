@@ -2,11 +2,15 @@ package io.sixhours.crawler.downloader;
 
 import akka.actor.AbstractActor;
 import akka.actor.Actor;
+import akka.actor.ActorRef;
 import akka.actor.Props;
+import akka.dispatch.Futures;
+import akka.dispatch.OnComplete;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
+import scala.concurrent.ExecutionContext;
 
 /**
  * Actor for handling file downloads.
@@ -56,14 +60,19 @@ public class FileDownloadActor extends AbstractActor {
   private void onDownloadFile(DownloadFile message) {
     String url = message.url;
 
-    try {
-      FileDownloadResult result = fileDownloader.downloadFile(url);
+    ActorRef sender = getSender();
+    ExecutionContext executionContext = getContext().system().dispatcher();
 
-      getSender().tell(result, Actor.noSender());
-      getContext().stop(getSelf());
-    } catch (FileDownloadException e) {
-      getSender().tell(new FileDownloadError(url), Actor.noSender());
-    }
+    Futures.future(() -> fileDownloader.downloadFile(url), executionContext)
+        .onComplete(new OnComplete<FileDownloadResult>() {
+          public void onComplete(Throwable failure, FileDownloadResult result) {
+            if (failure != null) {
+              sender.tell(new FileDownloadError(url), Actor.noSender());
+            } else {
+              sender.tell(result, Actor.noSender());
+            }
+          }
+        }, executionContext);
   }
 
   @Override
