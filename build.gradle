@@ -9,7 +9,7 @@ plugins {
     id 'application'
     id 'jacoco'
     id 'de.aaschmid.cpd' version '1.1'
-    id 'com.github.spotbugs' version '1.6.4'
+    id 'com.github.spotbugs' version '1.6.5'
 }
 
 ext {
@@ -28,7 +28,7 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 mainClassName = 'io.sixhours.crawler.App'
 
 dependencies {
-    implementation 'com.typesafe.akka:akka-actor_2.12:2.5.16'
+    implementation 'com.typesafe.akka:akka-actor_2.12:2.5.17'
     implementation 'com.typesafe.akka:akka-slf4j_2.12:2.5.17'
     implementation 'ch.qos.logback:logback-classic:1.2.3'
     implementation 'commons-io:commons-io:2.6'
@@ -41,7 +41,7 @@ dependencies {
     compileOnly 'com.github.spotbugs:spotbugs-annotations:3.1.5'
 
     testImplementation 'junit:junit:4.12'
-    testImplementation 'com.typesafe.akka:akka-testkit_2.12:2.5.16'
+    testImplementation 'com.typesafe.akka:akka-testkit_2.12:2.5.17'
     testImplementation 'org.assertj:assertj-core:3.11.0'
     testImplementation 'org.mockito:mockito-core:2.21.0'
 }
