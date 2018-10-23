@@ -54,8 +54,7 @@ public class FileDownloadActorTest {
         .thenReturn(new FileDownloadResult(TEST_URL, TEST_PATH));
 
     ActorRef fileDownloaderActor = system
-        .actorOf(FileDownloadActor.props(fileDownloader), FileDownloadActor.name(String.valueOf(
-            UUID.randomUUID())));
+        .actorOf(FileDownloadActor.props(fileDownloader), FileDownloadActor.NAME);
 
     fileDownloaderActor.tell(new DownloadFile(TEST_URL), probe.getRef());
 

@@ -24,18 +24,15 @@ import scala.concurrent.ExecutionContext;
 @RequiredArgsConstructor
 public class FileDownloadActor extends AbstractActor {
 
-  private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
+  public static final String NAME = "file-download";
 
-  private static final String NAME_PREFIX = "file-download-%s";
+  private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
 
   private final FileDownloader fileDownloader;
 
+
   public static Props props(FileDownloader fileDownloader) {
     return Props.create(FileDownloadActor.class, fileDownloader);
-  }
-
-  public static String name(String suffix) {
-    return String.format(NAME_PREFIX, suffix);
   }
 
   @Value
