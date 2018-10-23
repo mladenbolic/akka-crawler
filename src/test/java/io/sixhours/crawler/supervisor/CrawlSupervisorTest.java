@@ -46,7 +46,7 @@ public class CrawlSupervisorTest {
   @Spy
   private CrawlStatus crawlStatus;
 
-  static ActorSystem system;
+  private static ActorSystem system;
 
   @BeforeClass
   public static void setUpClass() {

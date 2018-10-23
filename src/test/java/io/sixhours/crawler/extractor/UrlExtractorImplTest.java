@@ -43,7 +43,7 @@ public class UrlExtractorImplTest {
   }
 
   @Test
-  public void givenExistingUrl_whenUrlExtract_thenReturnUrlExtractResult() throws Exception {
+  public void givenExistingUrl_whenUrlExtract_thenReturnUrlExtractResult() {
     URL url = Thread.currentThread().getContextClassLoader().getResource(EXISTING_FILE_URL);
     String file = url.getFile();
 
@@ -57,7 +57,7 @@ public class UrlExtractorImplTest {
   }
 
   @Test(expected = UrlExtractException.class)
-  public void givenNotExistingUrl_whenFileDownload_thenFailWithException() throws Exception {
+  public void givenNotExistingUrl_whenFileDownload_thenFailWithException() {
     URL url = Thread.currentThread().getContextClassLoader().getResource(EXISTING_FILE_URL);
     String file = url.getFile().replace(EXISTING_FILE_URL, NON_EXISTING_FILE_URL);
 

@@ -26,14 +26,10 @@ public class UrlExtractActor extends AbstractActor {
 
   private final UrlExtractor urlExtractor;
 
-  public static final String NAME_PREFIX = "url-extract-%s";
+  public static final String NAME = "url-extract";
 
   public static Props props(String baseUri, UrlExtractor urlExtractor) {
     return Props.create(UrlExtractActor.class, baseUri, urlExtractor);
-  }
-
-  public static String name(String suffix) {
-    return String.format(NAME_PREFIX, suffix);
   }
 
   @Value

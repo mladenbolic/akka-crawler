@@ -27,7 +27,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class UrlExtractActorTest {
 
-  static ActorSystem system;
+  private static ActorSystem system;
 
   @Mock
   private UrlExtractor urlExtractor;
@@ -44,7 +44,7 @@ public class UrlExtractActorTest {
   }
 
   @Test
-  public void givenUrl_whenUrlExtract_thenReturnExtractedUrls() throws Exception {
+  public void givenUrl_whenUrlExtract_thenReturnExtractedUrls() {
     when(urlExtractor.extractUrls(any(String.class), any(String.class)))
         .thenReturn(new UrlExtractResult(Collections.emptySet()));
 

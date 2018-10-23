@@ -55,7 +55,7 @@ public class FileDownloaderImplTest {
   }
 
   @Test
-  public void givenNotExistingUrl_whenDownloadFile_thenFailWithException() throws Exception {
+  public void givenNotExistingUrl_whenDownloadFile_thenFailWithException() {
     URL url = Thread.currentThread().getContextClassLoader().getResource(EXISTING_FILE_URL);
     String path = url.toString().replace(EXISTING_FILE_URL, NON_EXISTING_FILE_URL);
 

@@ -44,7 +44,7 @@ public class CrawlSupervisor extends AbstractActor {
   private ActorRef fileDownloaderActor;
   private ActorRef urlExtractor;
 
-  private SupervisorStrategy strategy = new OneForOneStrategy(3, Duration.ofMinutes(1),
+  private final SupervisorStrategy strategy = new OneForOneStrategy(3, Duration.ofMinutes(1),
       DeciderBuilder
           .match(UrlExtractException.class, e -> {
             log.error("Url extraction error: {}", e.getMessage());
@@ -105,7 +105,7 @@ public class CrawlSupervisor extends AbstractActor {
         .ifPresent(path -> fileDownloaderActor.tell(new DownloadFile(path), getSelf()));
   }
 
-  private void onCrawlFinished(CrawlFinished message) {
+  private void onCrawlFinished(@SuppressWarnings("unused") CrawlFinished message) {
     log.info("============================================================");
     log.info(crawlStatus.print());
     log.info("============================================================\n");

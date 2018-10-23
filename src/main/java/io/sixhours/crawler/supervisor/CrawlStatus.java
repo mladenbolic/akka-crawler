@@ -21,7 +21,7 @@ public class CrawlStatus {
   private final Set<String> failed = new HashSet<>();
 
   /**
-   * Adds given url to the list of total and remaing urls.
+   * Adds given url to the list of total and remaining urls.
    *
    * <p>If url already exists, nothing will be added.
    *
@@ -74,7 +74,7 @@ public class CrawlStatus {
   }
 
   /**
-   * Returns {@code Opttional} of next url that should be processed.
+   * Returns {@code Optional} of next url that should be processed.
    *
    * <p>If all urls are processed, {@code Optional.empty()} is returned.
    *
