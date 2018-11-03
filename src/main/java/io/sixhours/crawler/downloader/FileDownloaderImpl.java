@@ -40,13 +40,10 @@ public class FileDownloaderImpl implements FileDownloader {
       throws FileDownloadException {
     URL fileUrl;
     String filePath;
-    InputStream inputStream;
 
     try {
       fileUrl = new URL(url);
       filePath = getFilePath(fileUrl);
-
-      inputStream = fileUrl.openStream();
 
       createFileIfNotExists(filePath);
     } catch (IOException e) {
@@ -54,6 +51,7 @@ public class FileDownloaderImpl implements FileDownloader {
     }
 
     try (
+        InputStream inputStream = fileUrl.openStream();
         ReadableByteChannel readableByteChannel = Channels.newChannel(inputStream);
         FileOutputStream fileOutputStream = new FileOutputStream(
             downloadDir + filePath);
@@ -66,12 +64,6 @@ public class FileDownloaderImpl implements FileDownloader {
       return new FileDownloadResult(url, downloadDir + filePath);
     } catch (IOException e) {
       throw new FileDownloadException(e.getMessage(), e);
-    } finally {
-      try {
-        inputStream.close();
-      } catch (IOException e) {
-        throw new FileDownloadException(e.getMessage(), e);
-      }
     }
   }
 
