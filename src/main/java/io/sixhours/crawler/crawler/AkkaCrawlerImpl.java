@@ -38,7 +38,7 @@ public class AkkaCrawlerImpl implements Crawler {
         .actorOf(CrawlSupervisor.props(
             new CrawlStatus(),
             getFileDownloadActorCreator(),
-            getUrlExtractActorCreator(url),
+            getLinkExtractActorCreator(url),
             getTerminateCommand()
             ),
             CrawlSupervisor.NAME);
@@ -55,7 +55,7 @@ public class AkkaCrawlerImpl implements Crawler {
         FileDownloadActor.props(new FileDownloaderImpl(DOWNLOAD_DIR))));
   }
 
-  private Function<ActorRefFactory, ActorRef> getUrlExtractActorCreator(String domain) {
+  private Function<ActorRefFactory, ActorRef> getLinkExtractActorCreator(String domain) {
     return actorRefFactory -> actorRefFactory.actorOf(new RoundRobinPool(50).props(
         LinkExtractActor.props(domain, new LinkExtractorImpl())));
   }
