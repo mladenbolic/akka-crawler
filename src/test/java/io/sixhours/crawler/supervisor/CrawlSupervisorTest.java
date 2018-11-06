@@ -67,13 +67,13 @@ public class CrawlSupervisorTest {
     when(crawlStatus.next()).thenReturn(Optional.of(TEST_URL));
 
     Function<ActorRefFactory, ActorRef> fileDownloadCreator = param -> probe.getRef();
-    Function<ActorRefFactory, ActorRef> urlExtractorCreator = param -> probe.getRef();
+    Function<ActorRefFactory, ActorRef> linkExtractorCreator = param -> probe.getRef();
     Consumer<ActorContext> terminate = context -> {
     };
 
     ActorRef crawlSupervisor = system.actorOf(CrawlSupervisor.props(
         crawlStatus,
-        fileDownloadCreator, urlExtractorCreator, terminate));
+        fileDownloadCreator, linkExtractorCreator, terminate));
 
     probe.send(crawlSupervisor, new StartCrawling(TEST_URL));
 
@@ -84,17 +84,17 @@ public class CrawlSupervisorTest {
   }
 
   @Test
-  public void givenUrl_whenFileDownloadResult_thenStartUrlExtract() {
+  public void givenUrl_whenFileDownloadResult_thenStartLinkExtract() {
     TestKit probe = new TestKit(system);
 
     Function<ActorRefFactory, ActorRef> fileDownloadCreator = param -> probe.getRef();
-    Function<ActorRefFactory, ActorRef> urlExtractorCreator = param -> probe.getRef();
+    Function<ActorRefFactory, ActorRef> linkExtractorCreator = param -> probe.getRef();
     Consumer<ActorContext> terminate = context -> {
     };
 
     ActorRef crawlSupervisor = system
         .actorOf(CrawlSupervisor.props(crawlStatus,
-            fileDownloadCreator, urlExtractorCreator, terminate));
+            fileDownloadCreator, linkExtractorCreator, terminate));
 
     probe.send(crawlSupervisor, new FileDownloadResult(TEST_URL, TEST_PATH));
 
@@ -106,13 +106,13 @@ public class CrawlSupervisorTest {
     TestKit probe = new TestKit(system);
 
     Function<ActorRefFactory, ActorRef> fileDownloadCreator = param -> probe.getRef();
-    Function<ActorRefFactory, ActorRef> urlExtractorCreator = param -> probe.getRef();
+    Function<ActorRefFactory, ActorRef> linkExtractorCreator = param -> probe.getRef();
     Consumer<ActorContext> terminate = context -> {
     };
 
     ActorRef crawlSupervisor = system
         .actorOf(CrawlSupervisor.props(crawlStatus,
-            fileDownloadCreator, urlExtractorCreator, terminate));
+            fileDownloadCreator, linkExtractorCreator, terminate));
 
     probe.send(crawlSupervisor, new FileDownloadError(TEST_URL));
 
@@ -129,13 +129,13 @@ public class CrawlSupervisorTest {
     when(crawlStatus.isFinished()).thenReturn(Boolean.TRUE);
 
     Function<ActorRefFactory, ActorRef> fileDownloadCreator = param -> probe.getRef();
-    Function<ActorRefFactory, ActorRef> urlExtractorCreator = param -> probe.getRef();
+    Function<ActorRefFactory, ActorRef> linkExtractorCreator = param -> probe.getRef();
     Consumer<ActorContext> terminate = context -> {
     };
 
     ActorRef crawlSupervisor = system
         .actorOf(CrawlSupervisor.props(crawlStatus,
-            fileDownloadCreator, urlExtractorCreator, terminate));
+            fileDownloadCreator, linkExtractorCreator, terminate));
 
     probe.send(crawlSupervisor, new LinksExtracted(TEST_URL, TEST_PATH,
         extractedUrls));
@@ -156,13 +156,13 @@ public class CrawlSupervisorTest {
         .thenReturn(extractedUrls);
 
     Function<ActorRefFactory, ActorRef> fileDownloadCreator = param -> probe.getRef();
-    Function<ActorRefFactory, ActorRef> urlExtractorCreator = param -> probe.getRef();
+    Function<ActorRefFactory, ActorRef> linkExtractorCreator = param -> probe.getRef();
     Consumer<ActorContext> terminate = context -> {
     };
 
     ActorRef crawlSupervisor = system
         .actorOf(CrawlSupervisor.props(crawlStatus,
-            fileDownloadCreator, urlExtractorCreator, terminate));
+            fileDownloadCreator, linkExtractorCreator, terminate));
 
     probe.send(crawlSupervisor, new LinksExtracted(TEST_URL, TEST_PATH,
         extractedUrls));
@@ -179,13 +179,13 @@ public class CrawlSupervisorTest {
     TestKit probe = new TestKit(system);
 
     Function<ActorRefFactory, ActorRef> fileDownloadCreator = param -> probe.getRef();
-    Function<ActorRefFactory, ActorRef> urlExtractorCreator = param -> probe.getRef();
+    Function<ActorRefFactory, ActorRef> linkExtractorCreator = param -> probe.getRef();
     Consumer<ActorContext> terminate = context -> {
     };
 
     ActorRef crawlSupervisor = system
         .actorOf(CrawlSupervisor.props(crawlStatus,
-            fileDownloadCreator, urlExtractorCreator, terminate));
+            fileDownloadCreator, linkExtractorCreator, terminate));
 
     probe.send(crawlSupervisor, new CrawlFinished());
 

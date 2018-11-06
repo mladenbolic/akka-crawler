@@ -44,16 +44,16 @@ public class LinkExtractActorTest {
   }
 
   @Test
-  public void givenUrl_whenUrlExtract_thenReturnExtractedUrls() {
+  public void givenUrl_whenLinkExtract_thenReturnExtractedLinks() {
     when(linkExtractor.extractLinks(any(String.class), any(String.class)))
         .thenReturn(new LinkExtractResult(Collections.emptySet()));
 
     TestKit probe = new TestKit(system);
-    ActorRef urlExtractorActor = system
+    ActorRef linkExtractorActor = system
         .actorOf(LinkExtractActor.props("http://some.base.uri", linkExtractor));
 
     ExtractLinks extractLinksMessage = new ExtractLinks("http://some.url", "/some/path");
-    urlExtractorActor.tell(extractLinksMessage, probe.getRef());
+    linkExtractorActor.tell(extractLinksMessage, probe.getRef());
 
     LinksExtracted response = probe.expectMsgClass(LinksExtracted.class);
 

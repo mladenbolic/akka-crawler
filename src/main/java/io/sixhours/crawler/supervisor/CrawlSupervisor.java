@@ -37,12 +37,12 @@ public class CrawlSupervisor extends AbstractActor {
 
   private final Function<ActorRefFactory, ActorRef> fileDownloadCreator;
 
-  private final Function<ActorRefFactory, ActorRef> urlExtractorCreator;
+  private final Function<ActorRefFactory, ActorRef> linkExtractorCreator;
 
   private final Consumer<ActorContext> terminate;
 
   private ActorRef fileDownloaderActor;
-  private ActorRef urlExtractor;
+  private ActorRef linkExtractor;
 
   private final SupervisorStrategy strategy = new OneForOneStrategy(3, Duration.ofMinutes(1),
       DeciderBuilder
@@ -61,10 +61,10 @@ public class CrawlSupervisor extends AbstractActor {
 
   public static Props props(CrawlStatus crawlStatus,
       Function<ActorRefFactory, ActorRef> fileDownloadCreator,
-      Function<ActorRefFactory, ActorRef> urlExtractorCreator,
+      Function<ActorRefFactory, ActorRef> linkExtractorCreator,
       Consumer<ActorContext> terminate) {
     return Props.create(CrawlSupervisor.class, crawlStatus, fileDownloadCreator,
-        urlExtractorCreator, terminate);
+            linkExtractorCreator, terminate);
   }
 
   @Value
@@ -87,7 +87,7 @@ public class CrawlSupervisor extends AbstractActor {
   public void preStart() {
     log.info("Crawler started");
     fileDownloaderActor = fileDownloadCreator.apply(getContext());
-    urlExtractor = urlExtractorCreator.apply(getContext());
+    linkExtractor = linkExtractorCreator.apply(getContext());
   }
 
   @Override
@@ -117,7 +117,7 @@ public class CrawlSupervisor extends AbstractActor {
   }
 
   private void onFileDownloadResult(FileDownloadResult message) {
-    urlExtractor.tell(new ExtractLinks(message.getUrl(), message.getPath()), getSelf());
+    linkExtractor.tell(new ExtractLinks(message.getUrl(), message.getPath()), getSelf());
   }
 
   private void onFileDownloadError(FileDownloadError message) {

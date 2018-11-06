@@ -43,7 +43,7 @@ public class LinkExtractorImplTest {
   }
 
   @Test
-  public void givenExistingUrl_whenUrlExtract_thenReturnUrlExtractResult() {
+  public void givenExistingUrl_whenLinkExtract_thenReturnLinkExtractResult() {
     URL url = Thread.currentThread().getContextClassLoader().getResource(EXISTING_FILE_URL);
     String file = url.getFile();
 
