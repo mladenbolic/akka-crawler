@@ -12,9 +12,9 @@ import akka.japi.pf.DeciderBuilder;
 import io.sixhours.crawler.downloader.FileDownloadActor.DownloadFile;
 import io.sixhours.crawler.downloader.FileDownloadActor.FileDownloadError;
 import io.sixhours.crawler.downloader.FileDownloadActor.FileDownloadResult;
-import io.sixhours.crawler.extractor.UrlExtractActor.ExtractUrls;
-import io.sixhours.crawler.extractor.UrlExtractActor.UrlsExtracted;
-import io.sixhours.crawler.extractor.UrlExtractException;
+import io.sixhours.crawler.extractor.LinkExtractActor.ExtractLinks;
+import io.sixhours.crawler.extractor.LinkExtractActor.LinksExtracted;
+import io.sixhours.crawler.extractor.LinkExtractException;
 import java.time.Duration;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -46,7 +46,7 @@ public class CrawlSupervisor extends AbstractActor {
 
   private final SupervisorStrategy strategy = new OneForOneStrategy(3, Duration.ofMinutes(1),
       DeciderBuilder
-          .match(UrlExtractException.class, e -> {
+          .match(LinkExtractException.class, e -> {
             log.error("Url extraction error: {}", e.getMessage());
             return SupervisorStrategy.resume();
           })
@@ -117,7 +117,7 @@ public class CrawlSupervisor extends AbstractActor {
   }
 
   private void onFileDownloadResult(FileDownloadResult message) {
-    urlExtractor.tell(new ExtractUrls(message.getUrl(), message.getPath()), getSelf());
+    urlExtractor.tell(new ExtractLinks(message.getUrl(), message.getPath()), getSelf());
   }
 
   private void onFileDownloadError(FileDownloadError message) {
@@ -126,7 +126,7 @@ public class CrawlSupervisor extends AbstractActor {
     log.info(crawlStatus.print());
   }
 
-  private void onUrlsExtracted(UrlsExtracted message) {
+  private void onLinksExtracted(LinksExtracted message) {
     crawlStatus.addProcessed(message.getUrl());
     crawlStatus.addAll(message.getNewUrls());
 
@@ -147,7 +147,7 @@ public class CrawlSupervisor extends AbstractActor {
         .match(CrawlFinished.class, this::onCrawlFinished)
         .match(FileDownloadResult.class, this::onFileDownloadResult)
         .match(FileDownloadError.class, this::onFileDownloadError)
-        .match(UrlsExtracted.class, this::onUrlsExtracted)
+        .match(LinksExtracted.class, this::onLinksExtracted)
         .build();
   }
 }

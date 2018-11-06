@@ -5,7 +5,7 @@ package io.sixhours.crawler.extractor;
  *
  * @author Mladen Bolic
  */
-public interface UrlExtractor {
+public interface LinkExtractor {
 
   /**
    * Extracts links from given {@code filePath}.
@@ -14,5 +14,5 @@ public interface UrlExtractor {
    * @param filePath the path to the downloaded HTML page
    * @return url extract result containing list of found urls/links
    */
-  UrlExtractResult extractUrls(String url, String filePath) throws UrlExtractException;
+  LinkExtractResult extractUrls(String url, String filePath) throws LinkExtractException;
 }

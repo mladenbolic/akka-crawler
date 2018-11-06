@@ -5,15 +5,15 @@ package io.sixhours.crawler.extractor;
  *
  * @author Mladen Bolic
  */
-public class UrlExtractException extends RuntimeException {
+public class LinkExtractException extends RuntimeException {
 
   public static final long serialVersionUID = -3387514328743229948L;
 
-  public UrlExtractException(String message, Throwable cause) {
+  public LinkExtractException(String message, Throwable cause) {
     super(message, cause);
   }
 
-  public UrlExtractException(String message) {
+  public LinkExtractException(String message) {
     super(message);
   }
 }

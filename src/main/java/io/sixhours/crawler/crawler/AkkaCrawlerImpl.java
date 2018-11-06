@@ -7,8 +7,8 @@ import akka.actor.ActorSystem;
 import akka.routing.RoundRobinPool;
 import io.sixhours.crawler.downloader.FileDownloadActor;
 import io.sixhours.crawler.downloader.FileDownloaderImpl;
-import io.sixhours.crawler.extractor.UrlExtractActor;
-import io.sixhours.crawler.extractor.UrlExtractorImpl;
+import io.sixhours.crawler.extractor.LinkExtractActor;
+import io.sixhours.crawler.extractor.LinkExtractorImpl;
 import io.sixhours.crawler.supervisor.CrawlStatus;
 import io.sixhours.crawler.supervisor.CrawlSupervisor;
 import io.sixhours.crawler.supervisor.CrawlSupervisor.StartCrawling;
@@ -57,6 +57,6 @@ public class AkkaCrawlerImpl implements Crawler {
 
   private Function<ActorRefFactory, ActorRef> getUrlExtractActorCreator(String domain) {
     return actorRefFactory -> actorRefFactory.actorOf(new RoundRobinPool(50).props(
-        UrlExtractActor.props(domain, new UrlExtractorImpl())));
+        LinkExtractActor.props(domain, new LinkExtractorImpl())));
   }
 }

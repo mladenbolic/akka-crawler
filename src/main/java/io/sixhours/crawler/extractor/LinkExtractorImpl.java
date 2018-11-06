@@ -19,10 +19,10 @@ import org.jsoup.Jsoup;
  * @author Mladen Bolic
  */
 @SuppressWarnings("PMD.UseObjectForClearerAPI")
-public class UrlExtractorImpl implements UrlExtractor {
+public class LinkExtractorImpl implements LinkExtractor {
 
   @Override
-  public UrlExtractResult extractUrls(String url, String filePath) throws UrlExtractException {
+  public LinkExtractResult extractUrls(String url, String filePath) throws LinkExtractException {
     File file = new File(filePath);
     Set<String> urls = new HashSet<>();
 
@@ -49,10 +49,10 @@ public class UrlExtractorImpl implements UrlExtractor {
         );
       }
     } catch (IOException e) {
-      throw new UrlExtractException(e.getMessage(), e);
+      throw new LinkExtractException(e.getMessage(), e);
     }
 
-    return new UrlExtractResult(urls);
+    return new LinkExtractResult(urls);
   }
 
   private Stream<String> getLinks(String content, String url, String cssQuery,
@@ -71,7 +71,7 @@ public class UrlExtractorImpl implements UrlExtractor {
     try {
       return new URL(url).getHost().equals(new URL(link).getHost());
     } catch (MalformedURLException e) {
-      throw new UrlExtractException(e.getMessage(), e);
+      throw new LinkExtractException(e.getMessage(), e);
     }
   }
 }

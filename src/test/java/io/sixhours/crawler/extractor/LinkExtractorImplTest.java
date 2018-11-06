@@ -14,11 +14,11 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 /**
- * Test class for {@code UrlExtractorImpl}.
+ * Test class for {@code LinkExtractorImpl}.
  *
  * @author Mladen Bolic
  */
-public class UrlExtractorImplTest {
+public class LinkExtractorImplTest {
 
   private static final String EXISTING_FILE_URL = "index.html";
   private static final String NON_EXISTING_FILE_URL = "non-existing.html";
@@ -27,14 +27,14 @@ public class UrlExtractorImplTest {
   @Rule
   public TemporaryFolder temporaryFolder;
 
-  private UrlExtractor urlExtractor;
+  private LinkExtractor linkExtractor;
 
   @Before
   public void setUp() throws Exception {
     temporaryFolder = new TemporaryFolder();
     temporaryFolder.create();
 
-    urlExtractor = new UrlExtractorImpl();
+    linkExtractor = new LinkExtractorImpl();
   }
 
   @After
@@ -50,20 +50,20 @@ public class UrlExtractorImplTest {
     Set<String> expectedResult = new HashSet<>(
         Arrays.asList("http://sixhours.io/scripts.js", "http://sixhours.io/page1"));
 
-    UrlExtractResult result = urlExtractor
+    LinkExtractResult result = linkExtractor
         .extractUrls(BASE_URI, file);
 
     assertThat(result.getUrls()).isEqualTo(expectedResult);
   }
 
-  @Test(expected = UrlExtractException.class)
+  @Test(expected = LinkExtractException.class)
   public void givenNotExistingUrl_whenFileDownload_thenFailWithException() {
     URL url = Thread.currentThread().getContextClassLoader().getResource(EXISTING_FILE_URL);
     String file = url.getFile().replace(EXISTING_FILE_URL, NON_EXISTING_FILE_URL);
 
-    urlExtractor
+    linkExtractor
         .extractUrls(BASE_URI, file);
 
-    fail("Should throw UrlExtractException");
+    fail("Should throw LinkExtractException");
   }
 }

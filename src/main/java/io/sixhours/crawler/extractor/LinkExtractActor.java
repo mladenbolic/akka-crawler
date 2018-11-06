@@ -18,47 +18,47 @@ import scala.concurrent.ExecutionContext;
  * @author Mladen Bolic
  */
 @RequiredArgsConstructor
-public class UrlExtractActor extends AbstractActor {
+public class LinkExtractActor extends AbstractActor {
 
   private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
 
   private final String baseUri;
 
-  private final UrlExtractor urlExtractor;
+  private final LinkExtractor linkExtractor;
 
   public static final String NAME = "url-extract";
 
-  public static Props props(String baseUri, UrlExtractor urlExtractor) {
-    return Props.create(UrlExtractActor.class, baseUri, urlExtractor);
+  public static Props props(String baseUri, LinkExtractor linkExtractor) {
+    return Props.create(LinkExtractActor.class, baseUri, linkExtractor);
   }
 
   @Value
-  public static final class ExtractUrls {
+  public static final class ExtractLinks {
 
     private final String url;
     private final String path;
   }
 
   @Value
-  public static final class UrlsExtracted {
+  public static final class LinksExtracted {
 
     private final String url;
     private final String path;
     private final Set<String> newUrls;
   }
 
-  private void onExtractUrls(ExtractUrls message) {
+  private void onExtractUrls(ExtractLinks message) {
     String url = message.url;
     String path = message.path;
 
     ActorRef sender = getSender();
     ExecutionContext executionContext = getContext().system().dispatcher();
 
-    Futures.future(() -> this.urlExtractor.extractUrls(url, path), executionContext)
-        .onComplete(new OnComplete<UrlExtractResult>() {
+    Futures.future(() -> this.linkExtractor.extractUrls(url, path), executionContext)
+        .onComplete(new OnComplete<LinkExtractResult>() {
           @Override
-          public void onComplete(Throwable failure, UrlExtractResult result) {
-            sender.tell(new UrlsExtracted(url, path, result.getUrls()), getSelf());
+          public void onComplete(Throwable failure, LinkExtractResult result) {
+            sender.tell(new LinksExtracted(url, path, result.getUrls()), getSelf());
           }
         }, executionContext);
   }
@@ -66,7 +66,7 @@ public class UrlExtractActor extends AbstractActor {
   @Override
   public Receive createReceive() {
     return receiveBuilder()
-        .match(ExtractUrls.class, this::onExtractUrls)
+        .match(ExtractLinks.class, this::onExtractUrls)
         .build();
   }
 }

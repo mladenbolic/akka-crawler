@@ -9,8 +9,8 @@ import static org.mockito.Mockito.when;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.testkit.javadsl.TestKit;
-import io.sixhours.crawler.extractor.UrlExtractActor.ExtractUrls;
-import io.sixhours.crawler.extractor.UrlExtractActor.UrlsExtracted;
+import io.sixhours.crawler.extractor.LinkExtractActor.ExtractLinks;
+import io.sixhours.crawler.extractor.LinkExtractActor.LinksExtracted;
 import java.util.Collections;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -20,17 +20,17 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 /**
- * Test class for {@code UrlExtractActor}.
+ * Test class for {@code LinkExtractActor}.
  *
  * @author Mladen Bolic
  */
 @RunWith(MockitoJUnitRunner.class)
-public class UrlExtractActorTest {
+public class LinkExtractActorTest {
 
   private static ActorSystem system;
 
   @Mock
-  private UrlExtractor urlExtractor;
+  private LinkExtractor linkExtractor;
 
   @BeforeClass
   public static void setUpClass() {
@@ -45,19 +45,19 @@ public class UrlExtractActorTest {
 
   @Test
   public void givenUrl_whenUrlExtract_thenReturnExtractedUrls() {
-    when(urlExtractor.extractUrls(any(String.class), any(String.class)))
-        .thenReturn(new UrlExtractResult(Collections.emptySet()));
+    when(linkExtractor.extractUrls(any(String.class), any(String.class)))
+        .thenReturn(new LinkExtractResult(Collections.emptySet()));
 
     TestKit probe = new TestKit(system);
     ActorRef urlExtractorActor = system
-        .actorOf(UrlExtractActor.props("http://some.base.uri", urlExtractor));
+        .actorOf(LinkExtractActor.props("http://some.base.uri", linkExtractor));
 
-    ExtractUrls extractUrlsMessage = new ExtractUrls("http://some.url", "/some/path");
-    urlExtractorActor.tell(extractUrlsMessage, probe.getRef());
+    ExtractLinks extractLinksMessage = new ExtractLinks("http://some.url", "/some/path");
+    urlExtractorActor.tell(extractLinksMessage, probe.getRef());
 
-    UrlsExtracted response = probe.expectMsgClass(UrlsExtracted.class);
+    LinksExtracted response = probe.expectMsgClass(LinksExtracted.class);
 
-    verify(urlExtractor, times(1))
+    verify(linkExtractor, times(1))
         .extractUrls(any(String.class), any(String.class));
     assertThat(response.getUrl()).isEqualTo("http://some.url");
     assertThat(response.getPath()).isEqualTo("/some/path");

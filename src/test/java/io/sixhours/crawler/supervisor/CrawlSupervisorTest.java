@@ -13,8 +13,8 @@ import com.typesafe.config.ConfigFactory;
 import io.sixhours.crawler.downloader.FileDownloadActor.DownloadFile;
 import io.sixhours.crawler.downloader.FileDownloadActor.FileDownloadError;
 import io.sixhours.crawler.downloader.FileDownloadActor.FileDownloadResult;
-import io.sixhours.crawler.extractor.UrlExtractActor.ExtractUrls;
-import io.sixhours.crawler.extractor.UrlExtractActor.UrlsExtracted;
+import io.sixhours.crawler.extractor.LinkExtractActor.ExtractLinks;
+import io.sixhours.crawler.extractor.LinkExtractActor.LinksExtracted;
 import io.sixhours.crawler.supervisor.CrawlSupervisor.CrawlFinished;
 import io.sixhours.crawler.supervisor.CrawlSupervisor.StartCrawling;
 import java.util.Arrays;
@@ -98,7 +98,7 @@ public class CrawlSupervisorTest {
 
     probe.send(crawlSupervisor, new FileDownloadResult(TEST_URL, TEST_PATH));
 
-    probe.expectMsgEquals(new ExtractUrls(TEST_URL, TEST_PATH));
+    probe.expectMsgEquals(new ExtractLinks(TEST_URL, TEST_PATH));
   }
 
   @Test
@@ -137,7 +137,7 @@ public class CrawlSupervisorTest {
         .actorOf(CrawlSupervisor.props(crawlStatus,
             fileDownloadCreator, urlExtractorCreator, terminate));
 
-    probe.send(crawlSupervisor, new UrlsExtracted(TEST_URL, TEST_PATH,
+    probe.send(crawlSupervisor, new LinksExtracted(TEST_URL, TEST_PATH,
         extractedUrls));
 
     probe.expectNoMessage();
@@ -164,7 +164,7 @@ public class CrawlSupervisorTest {
         .actorOf(CrawlSupervisor.props(crawlStatus,
             fileDownloadCreator, urlExtractorCreator, terminate));
 
-    probe.send(crawlSupervisor, new UrlsExtracted(TEST_URL, TEST_PATH,
+    probe.send(crawlSupervisor, new LinksExtracted(TEST_URL, TEST_PATH,
         extractedUrls));
 
     probe.expectMsgAllOf(new DownloadFile("http://a.com/"), new DownloadFile("http://b.com/"));
