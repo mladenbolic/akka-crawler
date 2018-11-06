@@ -33,7 +33,7 @@ public class CrawlSupervisor extends AbstractActor {
 
   private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
 
-  private final CrawlStatus crawlStatus;
+  private final CrawlStatus crawlingStatus;
 
   private final Function<ActorRefFactory, ActorRef> fileDownloadCreator;
 
@@ -47,7 +47,7 @@ public class CrawlSupervisor extends AbstractActor {
   private final SupervisorStrategy strategy = new OneForOneStrategy(3, Duration.ofMinutes(1),
       DeciderBuilder
           .match(LinkExtractException.class, e -> {
-            log.error("Url extraction error: {}", e.getMessage());
+            log.error("Link extraction error: {}", e.getMessage());
             return SupervisorStrategy.resume();
           })
           .match(Throwable.class, e -> {
@@ -97,20 +97,20 @@ public class CrawlSupervisor extends AbstractActor {
 
   private void onStartCrawling(StartCrawling message) {
     String url = message.url;
-    crawlStatus.add(url);
+    crawlingStatus.add(url);
 
-    log.info(crawlStatus.print());
+    log.info(crawlingStatus.print());
 
-    crawlStatus.next()
+    crawlingStatus.next()
         .ifPresent(path -> fileDownloaderActor.tell(new DownloadFile(path), getSelf()));
   }
 
   private void onCrawlFinished(@SuppressWarnings("unused") CrawlFinished message) {
     log.info("============================================================");
-    log.info(crawlStatus.print());
+    log.info(crawlingStatus.print());
     log.info("============================================================\n");
     log.info("Failed urls:");
-    crawlStatus.getFailed()
+    crawlingStatus.getFailed()
         .forEach(log::info);
 
     terminate.accept(getContext());
@@ -121,21 +121,21 @@ public class CrawlSupervisor extends AbstractActor {
   }
 
   private void onFileDownloadError(FileDownloadError message) {
-    crawlStatus.addFailed(message.getUrl());
+    crawlingStatus.addFailed(message.getUrl());
 
-    log.info(crawlStatus.print());
+    log.info(crawlingStatus.print());
   }
 
   private void onLinksExtracted(LinksExtracted message) {
-    crawlStatus.addProcessed(message.getUrl());
-    crawlStatus.addAll(message.getNewUrls());
+    crawlingStatus.addProcessed(message.getUrl());
+    crawlingStatus.addAll(message.getNewUrls());
 
-    log.info(crawlStatus.print());
+    log.info(crawlingStatus.print());
 
-    if (crawlStatus.isFinished()) {
+    if (crawlingStatus.isFinished()) {
       getSelf().tell(new CrawlFinished(), ActorRef.noSender());
     } else {
-      crawlStatus.nextBatch()
+      crawlingStatus.nextBatch()
           .forEach(url -> fileDownloaderActor.tell(new DownloadFile(url), getSelf()));
     }
   }
