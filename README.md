@@ -1,6 +1,6 @@
 # Akka Crawler
 
-Application for crawling web sites and printing the list of all visited urls.
+Application for crawling web sites and Application for crawling web sites and saving to disk online file structure.
 
 >NOTE: Please use different url than the one specified in code. This one is just for illustration purposes.
 

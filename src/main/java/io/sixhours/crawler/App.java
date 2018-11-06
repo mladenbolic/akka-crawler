@@ -5,7 +5,7 @@ import io.sixhours.crawler.crawler.Crawler;
 import io.sixhours.crawler.utils.ArgsHandler;
 
 /**
- * Application for crawling web sites and printing the list of all visited urls.
+ * Application for crawling web sites and saving to disk online file structure.
  *
  * @author Mladen Bolic
  */
