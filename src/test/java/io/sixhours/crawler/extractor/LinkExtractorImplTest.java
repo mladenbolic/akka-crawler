@@ -51,7 +51,7 @@ public class LinkExtractorImplTest {
         Arrays.asList("http://sixhours.io/scripts.js", "http://sixhours.io/page1"));
 
     LinkExtractResult result = linkExtractor
-        .extractUrls(BASE_URI, file);
+        .extractLinks(BASE_URI, file);
 
     assertThat(result.getUrls()).isEqualTo(expectedResult);
   }
@@ -62,7 +62,7 @@ public class LinkExtractorImplTest {
     String file = url.getFile().replace(EXISTING_FILE_URL, NON_EXISTING_FILE_URL);
 
     linkExtractor
-        .extractUrls(BASE_URI, file);
+        .extractLinks(BASE_URI, file);
 
     fail("Should throw LinkExtractException");
   }

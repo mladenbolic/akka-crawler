@@ -54,7 +54,7 @@ public class LinkExtractActor extends AbstractActor {
     ActorRef sender = getSender();
     ExecutionContext executionContext = getContext().system().dispatcher();
 
-    Futures.future(() -> this.linkExtractor.extractUrls(url, path), executionContext)
+    Futures.future(() -> this.linkExtractor.extractLinks(url, path), executionContext)
         .onComplete(new OnComplete<LinkExtractResult>() {
           @Override
           public void onComplete(Throwable failure, LinkExtractResult result) {

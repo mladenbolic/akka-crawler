@@ -45,7 +45,7 @@ public class LinkExtractActorTest {
 
   @Test
   public void givenUrl_whenUrlExtract_thenReturnExtractedUrls() {
-    when(linkExtractor.extractUrls(any(String.class), any(String.class)))
+    when(linkExtractor.extractLinks(any(String.class), any(String.class)))
         .thenReturn(new LinkExtractResult(Collections.emptySet()));
 
     TestKit probe = new TestKit(system);
@@ -58,7 +58,7 @@ public class LinkExtractActorTest {
     LinksExtracted response = probe.expectMsgClass(LinksExtracted.class);
 
     verify(linkExtractor, times(1))
-        .extractUrls(any(String.class), any(String.class));
+        .extractLinks(any(String.class), any(String.class));
     assertThat(response.getUrl()).isEqualTo("http://some.url");
     assertThat(response.getPath()).isEqualTo("/some/path");
     assertThat(response.getNewUrls()).isEqualTo(Collections.emptySet());

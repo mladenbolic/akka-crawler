@@ -14,5 +14,5 @@ public interface LinkExtractor {
    * @param filePath the path to the downloaded HTML page
    * @return url extract result containing list of found urls/links
    */
-  LinkExtractResult extractUrls(String url, String filePath) throws LinkExtractException;
+  LinkExtractResult extractLinks(String url, String filePath) throws LinkExtractException;
 }

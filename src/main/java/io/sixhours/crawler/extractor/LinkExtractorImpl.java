@@ -22,7 +22,7 @@ import org.jsoup.Jsoup;
 public class LinkExtractorImpl implements LinkExtractor {
 
   @Override
-  public LinkExtractResult extractUrls(String url, String filePath) throws LinkExtractException {
+  public LinkExtractResult extractLinks(String url, String filePath) throws LinkExtractException {
     File file = new File(filePath);
     Set<String> urls = new HashSet<>();
 
