@@ -10,8 +10,8 @@ import io.sixhours.crawler.downloader.FileDownloaderImpl;
 import io.sixhours.crawler.extractor.LinkExtractActor;
 import io.sixhours.crawler.extractor.LinkExtractorImpl;
 import io.sixhours.crawler.supervisor.CrawlStatus;
-import io.sixhours.crawler.supervisor.CrawlSupervisor;
-import io.sixhours.crawler.supervisor.CrawlSupervisor.StartCrawling;
+import io.sixhours.crawler.supervisor.SupervisorActor;
+import io.sixhours.crawler.supervisor.SupervisorActor.StartCrawling;
 import java.io.File;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -35,13 +35,13 @@ public class AkkaCrawlerImpl implements Crawler {
     ActorSystem system = ActorSystem.create("crawler-system");
 
     ActorRef crawlSupervisor = system
-        .actorOf(CrawlSupervisor.props(
+        .actorOf(SupervisorActor.props(
             new CrawlStatus(),
             getFileDownloadActorCreator(),
             getLinkExtractActorCreator(url),
             getTerminateCommand()
             ),
-            CrawlSupervisor.NAME);
+            SupervisorActor.NAME);
 
     crawlSupervisor.tell(new StartCrawling(url), ActorRef.noSender());
   }
@@ -51,12 +51,12 @@ public class AkkaCrawlerImpl implements Crawler {
   }
 
   private Function<ActorRefFactory, ActorRef> getFileDownloadActorCreator() {
-    return actorRefFactory -> actorRefFactory.actorOf(new RoundRobinPool(50).props(
+    return actorRefFactory -> actorRefFactory.actorOf(new RoundRobinPool(20).props(
         FileDownloadActor.props(new FileDownloaderImpl(DOWNLOAD_DIR))));
   }
 
   private Function<ActorRefFactory, ActorRef> getLinkExtractActorCreator(String domain) {
-    return actorRefFactory -> actorRefFactory.actorOf(new RoundRobinPool(50).props(
+    return actorRefFactory -> actorRefFactory.actorOf(new RoundRobinPool(20).props(
         LinkExtractActor.props(domain, new LinkExtractorImpl())));
   }
 }
