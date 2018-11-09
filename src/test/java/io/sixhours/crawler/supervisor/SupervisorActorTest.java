@@ -15,8 +15,8 @@ import io.sixhours.crawler.downloader.FileDownloadActor.FileDownloadError;
 import io.sixhours.crawler.downloader.FileDownloadActor.FileDownloadResult;
 import io.sixhours.crawler.extractor.LinkExtractActor.ExtractLinks;
 import io.sixhours.crawler.extractor.LinkExtractActor.LinksExtracted;
-import io.sixhours.crawler.supervisor.CrawlSupervisor.CrawlFinished;
-import io.sixhours.crawler.supervisor.CrawlSupervisor.StartCrawling;
+import io.sixhours.crawler.supervisor.SupervisorActor.CrawlFinished;
+import io.sixhours.crawler.supervisor.SupervisorActor.StartCrawling;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -32,13 +32,13 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 /**
- * Test class for {@code CrawlSupervisor} actor.
+ * Test class for {@code SupervisorActor} actor.
  *
  * @author Mladen Bolic
  */
 @SuppressWarnings({"PMD.NonStaticInitializer", "PMD.JUnitTestsShouldIncludeAssert"})
 @RunWith(MockitoJUnitRunner.class)
-public class CrawlSupervisorTest {
+public class SupervisorActorTest {
 
   private static final String TEST_URL = "http://test.url/";
   private static final String TEST_PATH = "/test/path";
@@ -71,7 +71,7 @@ public class CrawlSupervisorTest {
     Consumer<ActorContext> terminate = context -> {
     };
 
-    ActorRef crawlSupervisor = system.actorOf(CrawlSupervisor.props(
+    ActorRef crawlSupervisor = system.actorOf(SupervisorActor.props(
         crawlStatus,
         fileDownloadCreator, linkExtractorCreator, terminate));
 
@@ -93,7 +93,7 @@ public class CrawlSupervisorTest {
     };
 
     ActorRef crawlSupervisor = system
-        .actorOf(CrawlSupervisor.props(crawlStatus,
+        .actorOf(SupervisorActor.props(crawlStatus,
             fileDownloadCreator, linkExtractorCreator, terminate));
 
     probe.send(crawlSupervisor, new FileDownloadResult(TEST_URL, TEST_PATH));
@@ -111,7 +111,7 @@ public class CrawlSupervisorTest {
     };
 
     ActorRef crawlSupervisor = system
-        .actorOf(CrawlSupervisor.props(crawlStatus,
+        .actorOf(SupervisorActor.props(crawlStatus,
             fileDownloadCreator, linkExtractorCreator, terminate));
 
     probe.send(crawlSupervisor, new FileDownloadError(TEST_URL));
@@ -134,7 +134,7 @@ public class CrawlSupervisorTest {
     };
 
     ActorRef crawlSupervisor = system
-        .actorOf(CrawlSupervisor.props(crawlStatus,
+        .actorOf(SupervisorActor.props(crawlStatus,
             fileDownloadCreator, linkExtractorCreator, terminate));
 
     probe.send(crawlSupervisor, new LinksExtracted(TEST_URL, TEST_PATH,
@@ -161,7 +161,7 @@ public class CrawlSupervisorTest {
     };
 
     ActorRef crawlSupervisor = system
-        .actorOf(CrawlSupervisor.props(crawlStatus,
+        .actorOf(SupervisorActor.props(crawlStatus,
             fileDownloadCreator, linkExtractorCreator, terminate));
 
     probe.send(crawlSupervisor, new LinksExtracted(TEST_URL, TEST_PATH,
@@ -184,7 +184,7 @@ public class CrawlSupervisorTest {
     };
 
     ActorRef crawlSupervisor = system
-        .actorOf(CrawlSupervisor.props(crawlStatus,
+        .actorOf(SupervisorActor.props(crawlStatus,
             fileDownloadCreator, linkExtractorCreator, terminate));
 
     probe.send(crawlSupervisor, new CrawlFinished());

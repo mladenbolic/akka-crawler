@@ -36,8 +36,7 @@ public class FileDownloaderImpl implements FileDownloader {
   }
 
   @Override
-  public FileDownloadResult downloadFile(String url)
-      throws FileDownloadException {
+  public FileDownloadResult downloadFile(String url) throws FileDownloadException {
     URL fileUrl;
     String filePath;
 

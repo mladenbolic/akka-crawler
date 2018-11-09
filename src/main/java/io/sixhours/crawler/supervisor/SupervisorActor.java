@@ -29,7 +29,7 @@ import lombok.Value;
  */
 @SuppressWarnings("PMD.UnusedFormalParameter")
 @RequiredArgsConstructor
-public class CrawlSupervisor extends AbstractActor {
+public class SupervisorActor extends AbstractActor {
 
   private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
 
@@ -48,7 +48,7 @@ public class CrawlSupervisor extends AbstractActor {
       DeciderBuilder
           .match(LinkExtractException.class, e -> {
             log.error("Link extraction error: {}", e.getMessage());
-            return SupervisorStrategy.resume();
+            return SupervisorStrategy.restart();
           })
           .match(Throwable.class, e -> {
             log.error("Unexpected error: {}", e.getMessage());
@@ -63,7 +63,7 @@ public class CrawlSupervisor extends AbstractActor {
       Function<ActorRefFactory, ActorRef> fileDownloadCreator,
       Function<ActorRefFactory, ActorRef> linkExtractorCreator,
       Consumer<ActorContext> terminate) {
-    return Props.create(CrawlSupervisor.class, crawlStatus, fileDownloadCreator,
+    return Props.create(SupervisorActor.class, crawlStatus, fileDownloadCreator,
             linkExtractorCreator, terminate);
   }
 
