@@ -41,6 +41,8 @@ This command will compile the application and start the main class.
         
         ./gradlew run --args="http://www.burgerking.no/"
         
+> NOTE: Following url is used only as example. Specify different url when running the application. 
+        
 ## Built With
 
 * [Gradle](https://gradle.org)
