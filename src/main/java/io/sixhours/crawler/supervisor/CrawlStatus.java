@@ -99,7 +99,7 @@ public class CrawlStatus {
    *
    * @return batch of urls
    */
-  public Set<String> nextBatch() {
+  public Set<String> getRemainingUrls() {
     Set<String> result = new HashSet<>(remaining);
     processing.addAll(remaining);
     remaining.clear();
