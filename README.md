@@ -35,7 +35,7 @@ This command will compile the application and start the main class.
 
 > We should pass 1 argument when running the application and it should be the url of a web site we want to crawl.
 
-* Diabetic patients die without insulin: 
+* Crawl web site having specified url: 
 
     Command:
         
