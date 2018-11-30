@@ -135,7 +135,7 @@ public class SupervisorActor extends AbstractActor {
     if (crawlingStatus.isFinished()) {
       getSelf().tell(new CrawlFinished(), ActorRef.noSender());
     } else {
-      crawlingStatus.getRemainingUrls()
+      crawlingStatus.nextBatch()
           .forEach(url -> fileDownloaderActor.tell(new DownloadFile(url), getSelf()));
     }
   }
